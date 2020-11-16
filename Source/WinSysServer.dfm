@@ -4,8 +4,8 @@ object frm_SysServer: Tfrm_SysServer
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Borland Socket Server'#27979#35797
-  ClientHeight = 175
-  ClientWidth = 328
+  ClientHeight = 154
+  ClientWidth = 332
   Color = clBtnFace
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
@@ -22,7 +22,7 @@ object frm_SysServer: Tfrm_SysServer
   TextHeight = 12
   object grp1: TGroupBox
     Left = 8
-    Top = 8
+    Top = 4
     Width = 313
     Height = 145
     TabOrder = 0
@@ -181,21 +181,19 @@ object frm_SysServer: Tfrm_SysServer
   end
   object stat1: TStatusBar
     Left = 0
-    Top = 156
-    Width = 328
-    Height = 19
+    Top = 132
+    Width = 332
+    Height = 22
     Panels = <
       item
         Width = 50
       end>
-    ExplicitTop = 129
-    ExplicitWidth = 329
   end
   object chk_SysAutoRun: TCheckBox
     Left = 8
     Top = 160
     Width = 145
-    Height = 17
+    Height = 9
     Caption = #24403#21551#21160#31995#32479#26102#33258#21160#36816#34892
     TabOrder = 1
     OnClick = chk_SysAutoRunClick
@@ -284,7 +282,7 @@ object frm_SysServer: Tfrm_SysServer
     Left = 288
     Top = 16
     Bitmap = {
-      494C010104000900100010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010104000900180010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

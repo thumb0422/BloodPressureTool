@@ -8,7 +8,9 @@ uses
   WinSysServer in 'WinSysServer.pas' {frm_SysServer},
   WinAbout in 'WinAbout.pas' {frm_About},
   DMWinServer in 'DMWinServer.pas' {dmWinSysServer: TDataModule},
-  USysServer in 'USysServer.pas';
+  USysServer in 'USysServer.pas',
+  ILog in 'TLog\ILog.pas',
+  TLog in 'TLog\TLog.pas';
 
 {$R *.res}
 

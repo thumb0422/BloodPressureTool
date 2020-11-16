@@ -1,0 +1,7 @@
+
+*.dcu
+
+out/ProSysServer.exe
+
+Source/__history/*
+Source/TLog/__history/*

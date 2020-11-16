@@ -2,5 +2,6 @@
 <BorlandProject>
 	<Transactions>
     <Transaction>2020/11/16 17:04:52.000.983,D:\Work\BloodPressureTool\Source\ProSysServer.dproj=D:\Work\BloodPressureTool\Source\BloodPressureProject.dproj</Transaction>
+    <Transaction>2020/11/16 19:28:35.801,D:\Work\BloodPressureTool\Source\TLog\ILog.pas=</Transaction>
   </Transactions>
 </BorlandProject>

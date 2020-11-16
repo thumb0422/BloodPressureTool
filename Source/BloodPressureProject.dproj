@@ -130,7 +130,6 @@
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <DCCReference Include="USysServer.pas"/>
-        <DCCReference Include="TLog\ILog.pas"/>
         <DCCReference Include="TLog\TLog.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>

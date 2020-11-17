@@ -1,16 +1,13 @@
-
 unit WinSysServer;
 
 interface
 
 uses
-   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, Menus, ExtCtrls, StdCtrls, ComCtrls,ShellAPI,
-  ActnList,DateUtils,DMWinServer, Buttons, ImgList,USysServer, OleCtrls,
-  System.ImageList, System.Actions;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Menus, ExtCtrls, StdCtrls, ComCtrls, ShellAPI, ActnList, DateUtils,
+  DMWinServer, Buttons, ImgList, USysServer, OleCtrls, System.ImageList, System.Actions;
 
 type
-
   Tfrm_SysServer = class(TForm)
     PopupMenu: TPopupMenu;
     minu_Close: TMenuItem;
@@ -74,17 +71,16 @@ type
   public
     procedure Initialize(FromService: Boolean);
   private
-    FDMServerState:TDMServerState; //当前状态
-    FDMServerICONState:Integer; //图标状态
-    FICONFlickerCount:Integer;//图标闪动次数
-    FDMICON_WARNING,FDMICON_ERROR:TIcon; //警告和错误提示图标
-    
-    procedure SetDMServerState(Value:TDMServerState);
-    function GetDMServerState:TDMServerState;
+    FDMServerState: TDMServerState; //当前状态
+    FDMServerICONState: Integer; //图标状态
+    FICONFlickerCount: Integer; //图标闪动次数
+    FDMICON_WARNING, FDMICON_ERROR: TIcon; //警告和错误提示图标
+
+    procedure SetDMServerState(Value: TDMServerState);
+    function GetDMServerState: TDMServerState;
     procedure Run;
     procedure Stop;
   public
-    
   protected
     {系统状态变化消息 启动 停止}
     procedure OnWM_DMServerState(var Message: TMessage); message WM_DMServerState;
@@ -92,13 +88,13 @@ type
     procedure OnWM_DMServerICONState(var Message: TMessage); message WM_DMServerICONState;
   end;
 
-
 var
   frm_SysServer: Tfrm_SysServer;
 
 implementation
 
-uses ActiveX, Math;
+uses
+  ActiveX, Math;
 
 
 {$R *.dfm}
@@ -108,16 +104,16 @@ uses ActiveX, Math;
 procedure Tfrm_SysServer.FormCreate(Sender: TObject);
 begin
   FClosing := False;
-  FDMICON_WARNING:=TIcon.Create;
-  il1.GetIcon(0,FDMICON_WARNING);
-  FDMICON_ERROR:=TIcon.Create;
-  il1.GetIcon(1,FDMICON_ERROR);
-  btn_Run.Enabled:=False;
-  btn_Stop.Enabled:=False;
-  chk_SysAutoRun.Enabled:=False;
-  Caption:=_SysServerMainTitle +' 服务管理器';
-  lbl_RunTime.Caption:='启动时间: '+FormatDateTime('yyyy-mm-dd hh:nn:ss ',FAppRunTime)+GetWeek(FAppRunTime);
-  tmr_RunTime.Enabled:=True;
+  FDMICON_WARNING := TIcon.Create;
+  il1.GetIcon(0, FDMICON_WARNING);
+  FDMICON_ERROR := TIcon.Create;
+  il1.GetIcon(1, FDMICON_ERROR);
+  btn_Run.Enabled := False;
+  btn_Stop.Enabled := False;
+  chk_SysAutoRun.Enabled := False;
+  Caption := _SysServerMainTitle + ' 服务管理器';
+  lbl_RunTime.Caption := '启动时间: ' + FormatDateTime('yyyy-mm-dd hh:nn:ss ', FAppRunTime) + GetWeek(FAppRunTime);
+  tmr_RunTime.Enabled := True;
 
 end;
 
@@ -139,7 +135,8 @@ begin
   if Found <> FProgmanOpen then
   begin
     FProgmanOpen := Found;
-    if Found then AddIcon;
+    if Found then
+      AddIcon;
     Refresh;
   end;
 end;
@@ -177,18 +174,18 @@ begin
 //  ReadSettings;
   if FromService then
   begin
-    act_Close.Visible:=False;
+    act_Close.Visible := False;
     N_Separator.Visible := False;
   end;
 //  UpdateStatus;
   AddIcon;
   if IE4Installed then
-    FTaskMessage := RegisterWindowMessage('TaskbarCreated') else
+    FTaskMessage := RegisterWindowMessage('TaskbarCreated')
+  else
     UpdateTimer.Enabled := True;
 end;
 
-procedure Tfrm_SysServer.FormCloseQuery(Sender: TObject;
-  var CanClose: Boolean);
+procedure Tfrm_SysServer.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 var
   TimerEnabled: Boolean;
 begin
@@ -196,9 +193,9 @@ begin
   UpdateTimer.Enabled := False;
   try
     CanClose := False;
-    if FClosing and (False=FFromService) then
+    if FClosing and (False = FFromService) then
     begin
-      if Application.MessageBox(PChar(SErrClose),'退出系统',MB_YESNO+MB_ICONQUESTION)=idNo then
+      if Application.MessageBox(PChar(SErrClose), '退出系统', MB_YESNO + MB_ICONQUESTION) = idNo then
       begin
         FClosing := False;
         Exit;
@@ -243,25 +240,25 @@ procedure Tfrm_SysServer.OnWM_DMServerICONState(var Message: TMessage);
 begin
 //图标状态  变化
 //正常，错误，警告
-  FDMServerICONState:=Message.WParam ;
+  FDMServerICONState := Message.WParam;
   case FDMServerICONState of
     MB_OK:
-    begin
-      FIconData.hIcon:=Forms.Application.Icon.Handle;
-      StrCopy(FIconData.szTip, PChar(Caption+#13+'状态:正在运行'));
-    end;
+      begin
+        FIconData.hIcon := Forms.Application.Icon.Handle;
+        StrCopy(FIconData.szTip, PChar(Caption + #13 + '状态:正在运行'));
+      end;
     MB_ICONWARNING:
-    begin
-      FIconData.hIcon:=FDMICON_WARNING.Handle;
-      StrCopy(FIconData.szTip, PChar(Caption+#13+'状态:警告'));
-    end;
+      begin
+        FIconData.hIcon := FDMICON_WARNING.Handle;
+        StrCopy(FIconData.szTip, PChar(Caption + #13 + '状态:警告'));
+      end;
     MB_ICONERROR:
-    begin
-      FIconData.hIcon:=FDMICON_ERROR.Handle;
-      StrCopy(FIconData.szTip, PChar(Caption+#13+'状态:错误'));
-    end;
+      begin
+        FIconData.hIcon := FDMICON_ERROR.Handle;
+        StrCopy(FIconData.szTip, PChar(Caption + #13 + '状态:错误'));
+      end;
   end;
-  Shell_NotifyIcon(NIM_MODIFY,@FIconData);
+  Shell_NotifyIcon(NIM_MODIFY, @FIconData);
 end;
 
 procedure Tfrm_SysServer.WMMIDASIcon(var Message: TMessage);
@@ -270,20 +267,21 @@ var
 begin
   case Message.LParam of
     WM_RBUTTONUP:
-    begin
-      if not Visible then
       begin
-        SetForegroundWindow(Handle);
-        GetCursorPos(pt);
-        PopupMenu.Popup(pt.x, pt.y);
-      end else
-        SetForegroundWindow(Handle);
-    end;
+        if not Visible then
+        begin
+          SetForegroundWindow(Handle);
+          GetCursorPos(pt);
+          PopupMenu.Popup(pt.x, pt.y);
+        end
+        else
+          SetForegroundWindow(Handle);
+      end;
     WM_LBUTTONDBLCLK:
       if Visible then
       begin
         SetForegroundWindow(Handle);
-        setwindowpos(Handle,HWND_TOP,0,0,0,0,SWP_NOMOVE+SWP_NOSIZE);
+        setwindowpos(Handle, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE + SWP_NOSIZE);
       end
       else
         act_Show.Execute;
@@ -308,87 +306,88 @@ end;
 
 procedure Tfrm_SysServer.tmr_RunTimeTimer(Sender: TObject);
 var
-  ANow:TDateTime;
+  ANow: TDateTime;
 begin
-  if FAppRunSecond=1 then
+  if FAppRunSecond = 1 then
   begin
     //运行了一秒后开始计时
-    PostMessage(Self.Handle,WM_ShowWinSysServer,0,0);
+    PostMessage(Self.Handle, WM_ShowWinSysServer, 0, 0);
   end;
 
   //当图标状态是 警告和错误时闪动
-  if FDMServerICONState in [MB_ICONWARNING,MB_ICONERROR] then
-    if  FICONFlickerCount>=10 then //警告，错误图标闪动次数大于等于10，停止闪动
+  if FDMServerICONState in [MB_ICONWARNING, MB_ICONERROR] then
+    if FICONFlickerCount >= 10 then //警告，错误图标闪动次数大于等于10，停止闪动
     begin
-      FIconData.hIcon:=Forms.Application.Icon.Handle;
-      Shell_NotifyIcon(NIM_MODIFY,@FIconData);
-      FICONFlickerCount:=0;
+      FIconData.hIcon := Forms.Application.Icon.Handle;
+      Shell_NotifyIcon(NIM_MODIFY, @FIconData);
+      FICONFlickerCount := 0;
     end
     else
     begin
       case FDMServerICONState of
         MB_ICONWARNING:
-        begin
-          if Odd(FAppRunSecond) then
-            FIconData.hIcon:=FDMICON_WARNING.Handle
-          else
-            FIconData.hIcon:=Forms.Application.Icon.Handle;
-          FICONFlickerCount:=FICONFlickerCount+1;
-          Shell_NotifyIcon(NIM_MODIFY,@FIconData);
-        end;
+          begin
+            if Odd(FAppRunSecond) then
+              FIconData.hIcon := FDMICON_WARNING.Handle
+            else
+              FIconData.hIcon := Forms.Application.Icon.Handle;
+            FICONFlickerCount := FICONFlickerCount + 1;
+            Shell_NotifyIcon(NIM_MODIFY, @FIconData);
+          end;
         MB_ICONERROR:
-        begin
-          if Odd(FAppRunSecond) then
-            FIconData.hIcon:=FDMICON_ERROR.Handle
-          else
-            FIconData.hIcon:=Forms.Application.Icon.Handle;
-          FICONFlickerCount:=FICONFlickerCount+1;
-          Shell_NotifyIcon(NIM_MODIFY,@FIconData);
-        end;
+          begin
+            if Odd(FAppRunSecond) then
+              FIconData.hIcon := FDMICON_ERROR.Handle
+            else
+              FIconData.hIcon := Forms.Application.Icon.Handle;
+            FICONFlickerCount := FICONFlickerCount + 1;
+            Shell_NotifyIcon(NIM_MODIFY, @FIconData);
+          end;
       end;
     end;
 
   {系统运行秒数}
-  FAppRunSecond:=FAppRunSecond+1;
+  FAppRunSecond := FAppRunSecond + 1;
   if Self.Active then //在窗体显示的时候显示运行时间
   begin
-    if Now<FAppRunTime then
-      lbl_RunTime.Font.Color:=clRed
+    if Now < FAppRunTime then
+      lbl_RunTime.Font.Color := clRed
     else
-      lbl_RunTime.Font.Color:=clBlack;
-    lbl_NowTime.Caption:='当前时间: '+FormatDateTime('yyyy-mm-dd hh:nn:ss ',Now)+GetWeek(Now);
+      lbl_RunTime.Font.Color := clBlack;
+    lbl_NowTime.Caption := '当前时间: ' + FormatDateTime('yyyy-mm-dd hh:nn:ss ', Now) + GetWeek(Now);
 
-    ANow:=IncSecond(FAppRunTime,FAppRunSecond);
-    lbl_RunLength.Caption:='系统运行: '+DateTimeBetweenStr(ANow,FAppRunTime);
+    ANow := IncSecond(FAppRunTime, FAppRunSecond);
+    lbl_RunLength.Caption := '系统运行: ' + DateTimeBetweenStr(ANow, FAppRunTime);
   end;
 end;
-
 
 procedure Tfrm_SysServer.OnWM_ShowWinSysServer(var Message: TMessage);
 begin
 //收到窗体显示后的消息
   //创建业务执行模块
   DMWinServerCreate(Self.Handle);
-  chk_SysAutoRun.Checked:=GetSysAutoRun;
-  chk_SysAutoRun.Enabled:=True;
+  chk_SysAutoRun.Checked := GetSysAutoRun;
+  chk_SysAutoRun.Enabled := True;
   //启动业务
   if chk_SysAutoRun.Checked then
-    btn_Run.Click  
+    btn_Run.Click
   else
-    btn_Run.Enabled:=True;
+    btn_Run.Enabled := True;
 end;
 
 procedure Tfrm_SysServer.OnWM_DMServerState(var Message: TMessage);
 begin
   {系统状态变化消息}
   case Message.WParam of
-    CO_DMServerState_Run:SetDMServerState(CO_DMServerState_Run); //系统运行
-    CO_DMServerState_Stop:SetDMServerState(CO_DMServerState_Stop); //系统停止
+    CO_DMServerState_Run:
+      SetDMServerState(CO_DMServerState_Run); //系统运行
+    CO_DMServerState_Stop:
+      SetDMServerState(CO_DMServerState_Stop); //系统停止
 
-    else SetDMServerState(CO_DMServerState_Wait);
+  else
+    SetDMServerState(CO_DMServerState_Wait);
   end;
 end;
-
 
 procedure Tfrm_SysServer.btn_RunClick(Sender: TObject);
 begin
@@ -398,7 +397,7 @@ end;
 
 procedure Tfrm_SysServer.btn_StopClick(Sender: TObject);
 begin
-  
+
   Stop;
 end;
 
@@ -411,7 +410,7 @@ end;
 function Tfrm_SysServer.GetDMServerState: TDMServerState;
 begin
 {返回当前的系统状态}
-  Result:=FDMServerState;
+  Result := FDMServerState;
 end;
 
 procedure Tfrm_SysServer.Run;
@@ -424,7 +423,7 @@ end;
 procedure Tfrm_SysServer.Stop;
 begin
   //开始停止系统业务
-  if Application.MessageBox('确实要停止运行吗？',PChar(Caption),MB_YESNO+MB_ICONQUESTION)=IDYES then
+  if Application.MessageBox('确实要停止运行吗？', PChar(Caption), MB_YESNO + MB_ICONQUESTION) = IDYES then
   begin
     SetDMServerState(CO_DMServerState_Stoping);
     DMWinServerStop;
@@ -434,37 +433,37 @@ end;
 procedure Tfrm_SysServer.SetDMServerState(Value: TDMServerState);
 begin
   {设置系统状态}
-  FDMServerState:=Value;
+  FDMServerState := Value;
   case FDMServerState of
     CO_DMServerState_Run:
-    begin
-      btn_Run.Enabled:=False;
-      btn_Stop.Enabled:=True;
-      stat1.Panels[0].Text:='正在运行 '+_SysServerMainTitle+' '+_SysServerSubtitle;
-    end;
+      begin
+        btn_Run.Enabled := False;
+        btn_Stop.Enabled := True;
+        stat1.Panels[0].Text := '正在运行 ' + _SysServerMainTitle + ' ' + _SysServerSubtitle;
+      end;
     CO_DMServerState_Runing:
-    begin
-      btn_Run.Enabled:=False;
-      btn_Stop.Enabled:=False;
-      stat1.Panels[0].Text:='正在启动 '+_SysServerMainTitle+' '+_SysServerSubtitle;
-    end;
+      begin
+        btn_Run.Enabled := False;
+        btn_Stop.Enabled := False;
+        stat1.Panels[0].Text := '正在启动 ' + _SysServerMainTitle + ' ' + _SysServerSubtitle;
+      end;
 
     CO_DMServerState_Stop:
-    begin
-      btn_Run.Enabled:=True;
-      btn_Stop.Enabled:=False;
-      stat1.Panels[0].Text:='已停止 '+_SysServerMainTitle+' '+_SysServerSubtitle;
-    end;
+      begin
+        btn_Run.Enabled := True;
+        btn_Stop.Enabled := False;
+        stat1.Panels[0].Text := '已停止 ' + _SysServerMainTitle + ' ' + _SysServerSubtitle;
+      end;
     CO_DMServerState_Stoping:
-    begin
-      btn_Run.Enabled:=False;
-      btn_Stop.Enabled:=False;
-      stat1.Panels[0].Text:='正在停止 '+_SysServerMainTitle+' '+_SysServerSubtitle;
-    end;
+      begin
+        btn_Run.Enabled := False;
+        btn_Stop.Enabled := False;
+        stat1.Panels[0].Text := '正在停止 ' + _SysServerMainTitle + ' ' + _SysServerSubtitle;
+      end;
     CO_DMServerState_Wait:
-    begin
+      begin
 
-    end;
+      end;
   end;
 end;
 
@@ -505,3 +504,4 @@ end.
 //停止中        Stoping
 //停止出错      StopErr
 //已停止        Stop
+

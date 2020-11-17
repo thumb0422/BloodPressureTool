@@ -6,12 +6,7 @@ uses
   System.SysUtils, System.SyncObjs;
 
 type
-  IDLog = interface
-    ['{1E147B92-1FBD-463F-B8A8-189A09CC71F7}']
-    procedure writeLog(str: string);
-  end;
-
-  TDLog = class(TInterfacedObject, IDLog)
+  TDLog = class(TObject)
   private
     class var
       FInstance: TDLog;

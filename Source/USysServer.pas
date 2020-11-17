@@ -3,38 +3,37 @@ unit USysServer;
 interface
 
 uses
-  SvcMgr,SysUtils,Messages,Windows,Classes,DateUtils,Forms,StdCtrls,
-  ComCtrls,ScktComp,ShellAPI, WinSvc,Registry,Dialogs;
+  SvcMgr, SysUtils, Messages, Windows, Classes, DateUtils, Forms, StdCtrls,
+  ComCtrls, ScktComp, ShellAPI, WinSvc, Registry, Dialogs;
 
 const
   {图标}
-  WM_MIDASICON          = WM_USER + 2;
+  WM_MIDASICON = WM_USER + 2;
   {初始化}
-  UI_INITIALIZE         = WM_USER + 4;
+  UI_INITIALIZE = WM_USER + 4;
   {窗体显示}
-  WM_ShowWinSysServer   =WM_USER  + 6;
+  WM_ShowWinSysServer = WM_USER + 6;
   {系统的状态变化，不同于服务本身的启动停止状态变化}
-  WM_DMServerState        =WM_USER  + 8;
+  WM_DMServerState = WM_USER + 8;
   {图标变化状态}
-  WM_DMServerICONState    =WM_USER  + 10;
+  WM_DMServerICONState = WM_USER + 10;
   {日志记录变化}
-  WM_LogChange            =WM_USER  + 12;
+  WM_LogChange = WM_USER + 12;
   {数据有变化，给数据监测窗体发送}
-  WM_DataMonitorChange    =WM_USER  +14;
+  WM_DataMonitorChange = WM_USER + 14;
 
   {系统启动状态}
-  CO_DMServerState_Run    =1;
+  CO_DMServerState_Run = 1;
   {系统停止状态}
-  CO_DMServerState_Stop   =0;
+  CO_DMServerState_Stop = 0;
   {系统正在启动过程中}
-  CO_DMServerState_Runing    =101;
+  CO_DMServerState_Runing = 101;
   {系统正在停止过程中}
-  CO_DMServerState_Stoping   =100;
+  CO_DMServerState_Stoping = 100;
   {其它未知状态}
-  CO_DMServerState_Wait      =1000;
-
-  KEY_USERSYSSERVER    ='\Software\UserSysServer\';
-  KEY_IE            = 'SOFTWARE\Microsoft\Internet Explorer';
+  CO_DMServerState_Wait = 1000;
+  KEY_USERSYSSERVER = '\Software\UserSysServer\';
+  KEY_IE = 'SOFTWARE\Microsoft\Internet Explorer';
 
 resourcestring
   SServiceOnly = '系统只能运行在  NT 3.51 版本以上。';
@@ -42,9 +41,11 @@ resourcestring
   SAlreadyRunning = '当前程序已经运行。';
 
 type
-  TDMServerState=Integer;
-  TDMServerICONState=(dsiOK,dsiWarning,dsiError);
+  TDMServerState = Integer;
+
+  TDMServerICONState = (dsiOK, dsiWarning, dsiError);
   {系统服务}
+
   TUserSysService = class(TService)
   protected
     procedure Start(Sender: TService; var Started: Boolean);
@@ -54,60 +55,75 @@ type
     constructor CreateNew(AOwner: TComponent; Dummy: Integer = 0); override;
   end;
   {系统服务初始化}
-  function SysServer_Installing: Boolean;
+
+function SysServer_Installing: Boolean;
   {系统服务启动}
-  function SysServer_StartService: Boolean;
+
+function SysServer_StartService: Boolean;
   {获取是否自动启动}
-  function GetSysAutoRun:Boolean;
+
+function GetSysAutoRun: Boolean;
   {设置是否自动启动}
-  procedure SetSysAutoRun(Value:Boolean);
+
+procedure SetSysAutoRun(Value: Boolean);
   {业务数据模块}
-  function DMWinServerCreate(AMainHandle:THandle):Boolean;
+
+function DMWinServerCreate(AMainHandle: THandle): Boolean;
   {系统开始运行}
-  procedure DMWinServerRun;
+
+procedure DMWinServerRun;
   {系统停止运行}
-  procedure DMWinServerStop;
+
+procedure DMWinServerStop;
   {系统关于窗体}
-  procedure DMWinServerAbout;
+
+procedure DMWinServerAbout;
   {系统设置窗体}
-  procedure DMWinServerSetup;
+
+procedure DMWinServerSetup;
   {数据监测窗体}
-  procedure DMWinServerDataMonitor;
+
+procedure DMWinServerDataMonitor;
   {显示日志窗体}
-  procedure DMWinServerLog;
+
+procedure DMWinServerLog;
  // procedure DMWinKingEQU;
 
   {添加日志}
-  procedure DMServerAddLog(const S:string);
+
+procedure DMServerAddLog(const S: string);
 
   {主窗体的  Handle}
-  function GetDMMainHandle:THandle;
+function GetDMMainHandle: THandle;
   {程序关闭}
-  procedure DMWinServerFree;
-  function GetWeek(AData:TDateTime):String;
-  function DateTimeBetweenStr(const ANow, AThen: TDateTime):String;
-  
+
+procedure DMWinServerFree;
+
+function GetWeek(AData: TDateTime): string;
+
+function DateTimeBetweenStr(const ANow, AThen: TDateTime): string;
+
 var
-  FAppRunTime:TDateTime;//系统启动时间 
-  FAppRunSecond:Int64;//启动到现在的秒数
+  FAppRunTime: TDateTime; //系统启动时间
+  FAppRunSecond: Int64; //启动到现在的秒数
   UserSysService: TUserSysService;
-  FAppLogList:TStringList;
+  FAppLogList: TStringList;
 
 implementation
 
-uses ActiveX, Math,DMWinServer;
-                     
+uses
+  ActiveX, Math, DMWinServer;
+
 var
   dmSysServer: TdmWinSysServer;
-  FMainHandle:THandle;
-  
+  FMainHandle: THandle;
+
 //****************************************************************************//
 function SysServer_Installing: Boolean;
 begin
-  FAppRunSecond:=0;
-  FAppRunTime:=Now;//得到系统的启动时间
-  Result := FindCmdLineSwitch('INSTALL',['-','\','/'], True) or
-            FindCmdLineSwitch('UNINSTALL',['-','\','/'], True);
+  FAppRunSecond := 0;
+  FAppRunTime := Now; //得到系统的启动时间
+  Result := FindCmdLineSwitch('INSTALL', ['-', '\', '/'], True) or FindCmdLineSwitch('UNINSTALL', ['-', '\', '/'], True);
 end;
 
 function SysServer_StartService: Boolean;
@@ -150,52 +166,54 @@ begin
 end;
 
 function GetSysAutoRun: Boolean;
-  procedure WriteRegValue(reg:TRegistry;Name,Value:string);
+
+  procedure WriteRegValue(reg: TRegistry; Name, Value: string);
   var
-    s:String;
+    s: string;
   begin
-    s:='';
+    s := '';
     if reg.ValueExists(Name) then
-      s:=reg.ReadString(Name);
-    if False=SameText(s,Value) then
-      reg.WriteString(Name,Value);
+      s := reg.ReadString(Name);
+    if False = SameText(s, Value) then
+      reg.WriteString(Name, Value);
 
   end;
 //返回系统启动是否自动运行
+
 var
-  reg:TRegistry;
-  af:String;
+  reg: TRegistry;
+  af: string;
 begin
-  Result:=False;
-  reg:=TRegistry.Create;//创建实例
-  reg.RootKey:=HKEY_LOCAL_MACHINE;//指定需要操作的注册表的主键
-  if reg.OpenKey(KEY_USERSYSSERVER+_SysServerMutexID,true) then//如果打开成功则进行以下操作
+  Result := False;
+  reg := TRegistry.Create; //创建实例
+  reg.RootKey := HKEY_LOCAL_MACHINE; //指定需要操作的注册表的主键
+  if reg.OpenKey(KEY_USERSYSSERVER + _SysServerMutexID, true) then//如果打开成功则进行以下操作
   begin
     if reg.ValueExists('AutoRun') then
-      Result:=reg.ReadBool('AutoRun');//将需要保存的信息写入注册表
-    WriteRegValue(reg,'FileName'          ,Application.ExeName);    {系统的位置}
-    WriteRegValue(reg,'ServerDisplayName' ,_SysServerDisplayName);  {服务显示名称}
-    WriteRegValue(reg,'ServerName'        ,_SysServerName);         {服务名称}
-    WriteRegValue(reg,'ServerReadme'      ,_SysServerReadme);       {服务的说明}
-    WriteRegValue(reg,'MainTitle'         ,_SysServerMainTitle);    {系统的主标题}
-    WriteRegValue(reg,'Subtitle'          ,_SysServerSubtitle);     {系统的副标题}
-    reg.CloseKey;//关闭注册表
+      Result := reg.ReadBool('AutoRun'); //将需要保存的信息写入注册表
+    WriteRegValue(reg, 'FileName', Application.ExeName);    {系统的位置}
+    WriteRegValue(reg, 'ServerDisplayName', _SysServerDisplayName);  {服务显示名称}
+    WriteRegValue(reg, 'ServerName', _SysServerName);         {服务名称}
+    WriteRegValue(reg, 'ServerReadme', _SysServerReadme);       {服务的说明}
+    WriteRegValue(reg, 'MainTitle', _SysServerMainTitle);    {系统的主标题}
+    WriteRegValue(reg, 'Subtitle', _SysServerSubtitle);     {系统的副标题}
+    reg.CloseKey; //关闭注册表
   end;
-  reg.Free;//释放变量所占内存
+  reg.Free; //释放变量所占内存
 end;
 
-procedure SetSysAutoRun(Value:Boolean);
+procedure SetSysAutoRun(Value: Boolean);
 var
-  reg:TRegistry;
+  reg: TRegistry;
 begin
-  reg:=TRegistry.Create;//创建实例
-  reg.RootKey:=HKEY_LOCAL_MACHINE;//指定需要操作的注册表的主键
-  if reg.OpenKey(KEY_USERSYSSERVER+_SysServerMutexID,true) then//如果打开成功则进行以下操作
+  reg := TRegistry.Create; //创建实例
+  reg.RootKey := HKEY_LOCAL_MACHINE; //指定需要操作的注册表的主键
+  if reg.OpenKey(KEY_USERSYSSERVER + _SysServerMutexID, true) then//如果打开成功则进行以下操作
   begin
-    reg.WriteBool('AutoRun',Value);//将需要保存的信息写入注册表
-    reg.CloseKey;//关闭注册表
+    reg.WriteBool('AutoRun', Value); //将需要保存的信息写入注册表
+    reg.CloseKey; //关闭注册表
   end;
-  reg.Free;//释放变量所占内存
+  reg.Free; //释放变量所占内存
 end;
 
 { TUserSysService }
@@ -217,8 +235,8 @@ begin
   Interactive := True;
   DisplayName := _SysServerDisplayName; //服务的显示名称
   Name := _SysServerName;  //服务名称
-  OnStart := Start;//启动
-  OnStop := Stop;//停止
+  OnStart := Start; //启动
+  OnStop := Stop; //停止
 end;
 
 procedure TUserSysService.Start(Sender: TService; var Started: Boolean);
@@ -233,18 +251,17 @@ begin
   Stopped := True;
 end;
 
-
-function DMWinServerCreate(AMainHandle:THandle):Boolean;
+function DMWinServerCreate(AMainHandle: THandle): Boolean;
 begin
-  if False=Assigned(dmSysServer) then
-    dmSysServer:=TdmWinSysServer.Create(Application);
-  FMainHandle:=AMainHandle;
-  Result:=True;
+  if False = Assigned(dmSysServer) then
+    dmSysServer := TdmWinSysServer.Create(Application);
+  FMainHandle := AMainHandle;
+  Result := True;
 end;
 
-function DMWinSysServer:TdmWinSysServer;
+function DMWinSysServer: TdmWinSysServer;
 begin
-  Result:=dmSysServer;
+  Result := dmSysServer;
 end;
 
 procedure DMWinServerRun;
@@ -257,9 +274,9 @@ begin
   dmSysServer.Stop;
 end;
 
-function GetDMMainHandle:THandle;
+function GetDMMainHandle: THandle;
 begin
-  Result:=FMainHandle;
+  Result := FMainHandle;
 end;
 
 {系统关于}
@@ -286,7 +303,7 @@ begin
   dmSysServer.ShowWinDataMonitor;
 end;
 
-procedure DMServerAddLog(const S:string);
+procedure DMServerAddLog(const S: string);
 begin
 //添加日志
   //WinLog._DMServerAddLog(S);
@@ -303,58 +320,65 @@ begin
   dmSysServer.ShowWinKingEQU;
 end;  }
 
-function DateTimeBetweenStr(const ANow, AThen: TDateTime):String;
+function DateTimeBetweenStr(const ANow, AThen: TDateTime): string;
 var
-  i:Integer;
-  AD:TDateTime;
-  AYear,AMonth,ADay:Word;
-  AHour, AMin, ASec, AMSec:Word;
+  i: Integer;
+  AD: TDateTime;
+  AYear, AMonth, ADay: Word;
+  AHour, AMin, ASec, AMSec: Word;
 begin
-  AD:=AThen;
-  DecodeDateTime(AD,AYear,AMonth,ADay,AHour, AMin, ASec, AMSec);
+  AD := AThen;
+  DecodeDateTime(AD, AYear, AMonth, ADay, AHour, AMin, ASec, AMSec);
 
-  i:=YearsBetween(ANow, AD);
-  if i>0 then
-    Result:=IntToStr(i)+'年';
+  i := YearsBetween(ANow, AD);
+  if i > 0 then
+    Result := IntToStr(i) + '年';
 
-  AD:=IncYear(AD,i);
-  i:=MonthsBetween(ANow, AD) ;
-  if i>0 then
-    Result:=Result+IntToStr(i)+'月';
+  AD := IncYear(AD, i);
+  i := MonthsBetween(ANow, AD);
+  if i > 0 then
+    Result := Result + IntToStr(i) + '月';
 
-  AD:=IncMonth(AD,i);
-  i:=DaysBetween(ANow, AD);
-  if i>0 then
-    Result:=Result+IntToStr(i)+'天';
+  AD := IncMonth(AD, i);
+  i := DaysBetween(ANow, AD);
+  if i > 0 then
+    Result := Result + IntToStr(i) + '天';
 
-  AD:=IncDay(AD,i);
-  i:=HoursBetween(ANow, AD);
-  if i>0 then
-    Result:=Result+IntToStr(i)+'小时';
+  AD := IncDay(AD, i);
+  i := HoursBetween(ANow, AD);
+  if i > 0 then
+    Result := Result + IntToStr(i) + '小时';
 
-  AD:=IncHour(AD,i);
-  i:=MinutesBetween(ANow, AD);
-  if i>0 then
-    Result:=Result+IntToStr(i)+'分钟';
+  AD := IncHour(AD, i);
+  i := MinutesBetween(ANow, AD);
+  if i > 0 then
+    Result := Result + IntToStr(i) + '分钟';
 
-  AD:=IncMinute(AD,i);
-  i:=SecondsBetween(ANow, AD);
-  if i>0 then
-    Result:=Result+IntToStr(i)+'秒';
+  AD := IncMinute(AD, i);
+  i := SecondsBetween(ANow, AD);
+  if i > 0 then
+    Result := Result + IntToStr(i) + '秒';
 end;
 
-function GetWeek(AData:TDateTime):String;
+function GetWeek(AData: TDateTime): string;
 begin
   case DayOfWeek(AData) of
-    1:Result:='星期天';
-    2:Result:='星期一';
-    3:Result:='星期二';
-    4:Result:='星期三';
-    5:Result:='星期四';
-    6:Result:='星期五';
-    7:Result:='星期六';
+    1:
+      Result := '星期天';
+    2:
+      Result := '星期一';
+    3:
+      Result := '星期二';
+    4:
+      Result := '星期三';
+    5:
+      Result := '星期四';
+    6:
+      Result := '星期五';
+    7:
+      Result := '星期六';
   end;
 end;
 
-
 end.
+

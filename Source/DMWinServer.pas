@@ -3,29 +3,25 @@ unit DMWinServer;
 interface
 
 uses
-  SysUtils,Messages,Windows,Classes,Forms, DB, ADODB, ExtCtrls,
-    USysServer,Dialogs;
+  SysUtils, Messages, Windows, Classes, Forms, DB, ADODB, ExtCtrls, USysServer,
+  Dialogs;
 
 const
 //****************************** 每个项目中需要修改的内容 ********************
   {服务的显示名称}
-   _SysServerDisplayName='XYZ_SYSServer';
+  _SysServerDisplayName = 'XYZ_SYSServer';
   {服务名称}
-  _SysServerName='XYZ_SYSServer';
+  _SysServerName = 'XYZ_SYSServer';
   {服务的说明}
-  _SysServerReadme='系统服务程序';
+  _SysServerReadme = '系统服务程序';
   {系统的主标题}
-   _SysServerMainTitle ='系统服务程序'; //系统主标题
+  _SysServerMainTitle = '系统服务程序'; //系统主标题
   {系统的副标题}
-  _SysServerSubtitle  ='';//副标题
+  _SysServerSubtitle = ''; //副标题
   {系统的唯一标识,用来防止同一个程序启动多份}
-  _SysServerMutexID   ='01D01D9A-950A-48F5-A488-A042F2480CF6'; //系统唯一标识
-
+  _SysServerMutexID = '01D01D9A-950A-48F5-A488-A042F2480CF6'; //系统唯一标识
 
 type
-
-
-
   TdmWinSysServer = class(TDataModule)
     tmr_Save: TTimer;
     con_SQL: TADOConnection;
@@ -39,24 +35,21 @@ type
   private
     { Private declarations }
     FWindowHandle: HWND;
-    FIsRun:Boolean;
+    FIsRun: Boolean;
   private
-    FReadRecordCount:Integer;//总共读取的条数
-    FUploadRecordCount:Integer;//总共提交的数据条数
-    FUploadSQLList:TStringList;  //上传的SQL语句
-    FMySection:TRTLCriticalSection;//临界区
-    function UploadSQLExcel(conn:TADOConnection;isAll:Boolean):Integer;
-    function OpenSQLExcel(conn:TADOConnection;const sqlstr:string):TADOQuery;
+    FReadRecordCount: Integer; //总共读取的条数
+    FUploadRecordCount: Integer; //总共提交的数据条数
+    FUploadSQLList: TStringList;  //上传的SQL语句
+    FMySection: TRTLCriticalSection; //临界区
+    function UploadSQLExcel(conn: TADOConnection; isAll: Boolean): Integer;
+    function OpenSQLExcel(conn: TADOConnection; const sqlstr: string): TADOQuery;
   private //窗体，可以用来处理消息
-    FMainHandle:THandle;
+    FMainHandle: THandle;
     procedure WndProc(var Msg: TMessage);
   private
-
-
   private
-
   private
-    FPrevReadSS_Time:TDateTime;//上一次读取的时间
+    FPrevReadSS_Time: TDateTime; //上一次读取的时间
     procedure RefreshConfig;
   public
     { Public declarations }
@@ -65,19 +58,18 @@ type
     {停止系统的业务}
     procedure Stop;
     {设置当前是否有错误或警告}
-    procedure SetDMServerICONState(value:TDMServerICONState);
-    procedure ShowAbout;//关于
-    procedure ShowSetup;//设置
-    procedure ShowWinDataMonitor;//数据监测窗体
+    procedure SetDMServerICONState(value: TDMServerICONState);
+    procedure ShowAbout; //关于
+    procedure ShowSetup; //设置
+    procedure ShowWinDataMonitor; //数据监测窗体
 //    procedure ShowWinKingEQU;
   public
   end;
 
-
 implementation
 
-uses DateUtils, Contnrs, StrUtils,Controls, WinAbout,
-   Math;
+uses
+  DateUtils, Contnrs, StrUtils, Controls, WinAbout, Math;
 
 {$R *.dfm}
 
@@ -86,10 +78,10 @@ uses DateUtils, Contnrs, StrUtils,Controls, WinAbout,
 
 procedure TdmWinSysServer.Run;
 var
-  i:Integer;
-  Err:String;
+  i: Integer;
+  Err: string;
 begin
-  FIsRun:=False;
+  FIsRun := False;
 //启动系统的业务功能
   SetDMServerICONState(dsiOK);
   //刷新参数
@@ -104,41 +96,39 @@ begin
   end }
 
   //通知界面，程序启动
-  tmr_Save.Enabled:=True;
+  tmr_Save.Enabled := True;
   //通知首页，程序启动
-  PostMessage(GetDMMainHandle,WM_DMServerState,CO_DMServerState_Run,0);
-  FIsRun:=True;
+  PostMessage(GetDMMainHandle, WM_DMServerState, CO_DMServerState_Run, 0);
+  FIsRun := True;
 
 end;
 
 procedure TdmWinSysServer.Stop;
 begin
-  FIsRun:=False;
+  FIsRun := False;
 //停止系统的业务功能
-  tmr_Save.Enabled:=False;
+  tmr_Save.Enabled := False;
 
   SetDMServerICONState(dsiOK);
   //通知首页，停止完成
-  PostMessage(GetDMMainHandle,WM_DMServerState,CO_DMServerState_Stop,0);
+  PostMessage(GetDMMainHandle, WM_DMServerState, CO_DMServerState_Stop, 0);
 end;
-
-
 
 procedure TdmWinSysServer.DataModuleCreate(Sender: TObject);
 var
-  i:Integer;
+  i: Integer;
 begin
   FWindowHandle := Classes.AllocateHWnd(WndProc);
-  FUploadSQLList:=TStringList.Create;
+  FUploadSQLList := TStringList.Create;
   InitializeCriticalSection(FMySection);
 end;
 
-function TdmWinSysServer.UploadSQLExcel(conn:TADOConnection;isAll:Boolean):Integer;
+function TdmWinSysServer.UploadSQLExcel(conn: TADOConnection; isAll: Boolean): Integer;
 var
-  i,L:Integer;
-  Err:String;
+  i, L: Integer;
+  Err: string;
 begin
-  if FUploadSQLList.Count=0 then
+  if FUploadSQLList.Count = 0 then
   begin
     DMServerAddLog('上传数据取消，空的SQL语句 ');
     Exit;
@@ -146,8 +136,8 @@ begin
   //进入临界区
   EnterCriticalSection(FMySection);
 
-  Result:=-1;
-  if False=conn.Connected then
+  Result := -1;
+  if False = conn.Connected then
   begin
   {  if False=TDBConfInfo.GetDBConfig.GetConn(dbSQLServer,conn,Err) then
     begin
@@ -159,53 +149,52 @@ begin
     else
       DMServerAddLog('上传数据库连接成功 ');  }
   end;
-          
-
 
   try
     qry_SQL.SQL.Clear;
-    i:=0;
-    L:=FUploadSQLList.Count;
+    i := 0;
+    L := FUploadSQLList.Count;
     if isAll then
     begin
-      for i:=0 to FUploadSQLList.Count-1 do
+      for i := 0 to FUploadSQLList.Count - 1 do
       begin
         qry_SQL.SQL.Add(FUploadSQLList.Strings[i]);
-        FUploadRecordCount:=FUploadRecordCount+1;
+        FUploadRecordCount := FUploadRecordCount + 1;
       end;
       FUploadSQLList.Clear;
-    
+
       try
-        if qry_SQL.SQL.Count>0 then
+        if qry_SQL.SQL.Count > 0 then
           qry_SQL.ExecSQL;
         qry_SQL.SQL.Clear;
 
-
         Application.ProcessMessages;
-      except on E:Exception do
+      except
+        on E: Exception do
         begin
-          DMServerAddLog('上传到服务器错误。'+#13+E.Message);
+          DMServerAddLog('上传到服务器错误。' + #13 + E.Message);
           conn.Close;
         end;
       end;
     end
     else
     begin
-      while FUploadSQLList.Count>0 do
+      while FUploadSQLList.Count > 0 do
       begin
         qry_SQL.SQL.Add(FUploadSQLList.Strings[i]);
         FUploadSQLList.Delete(i);
-        if (qry_SQL.SQL.Count>10)or((qry_SQL.SQL.Count>0) and  (FUploadSQLList.Count=0)) then
+        if (qry_SQL.SQL.Count > 10) or ((qry_SQL.SQL.Count > 0) and (FUploadSQLList.Count = 0)) then
         begin
           try
             qry_SQL.ExecSQL;
             qry_SQL.SQL.Clear;
 
-            FUploadRecordCount:=FUploadRecordCount+1;
+            FUploadRecordCount := FUploadRecordCount + 1;
             Application.ProcessMessages;
-          except on E:Exception do
+          except
+            on E: Exception do
             begin
-              DMServerAddLog('上传到服务器错误。'+#13+E.Message);
+              DMServerAddLog('上传到服务器错误。' + #13 + E.Message);
               conn.Close;
               Break;
             end;
@@ -219,7 +208,6 @@ begin
   end;
 end;
 
-
 procedure TdmWinSysServer.ShowSetup;
 begin
   Showmessage('设置窗体');
@@ -229,15 +217,15 @@ end;
 
 procedure TdmWinSysServer.RefreshConfig;
 var
-  bo:Boolean;
+  bo: Boolean;
 begin
   Showmessage('刷新当前的参数');
 //刷新当前的设置
 //  FLEDDataList.MaxShowCount:=TDBConfInfo.GetDBConfig.GeneralSetup.ShowMaxCount_SS;
-  bo:=tmr_Save.Enabled;
-  tmr_Save.Enabled:=False;
-  tmr_Save.Interval:=10000;//  TDBConfInfo.GetDBConfig.GeneralSetup. Read_Interval*1000;
-  tmr_Save.Enabled:=bo;
+  bo := tmr_Save.Enabled;
+  tmr_Save.Enabled := False;
+  tmr_Save.Interval := 10000; //  TDBConfInfo.GetDBConfig.GeneralSetup. Read_Interval*1000;
+  tmr_Save.Enabled := bo;
 end;
 
 procedure TdmWinSysServer.tmr_SaveTimer(Sender: TObject);
@@ -251,9 +239,12 @@ procedure TdmWinSysServer.SetDMServerICONState(value: TDMServerICONState);
 begin
   {设置系统运行图标状态 正常，警告，错误}
   case value of
-    dsiOK     :PostMessage(GetDMMainHandle,WM_DMServerICONState,MB_OK,0);
-    dsiWarning:PostMessage(GetDMMainHandle,WM_DMServerICONState,MB_ICONWARNING,0);
-    dsiError  :PostMessage(GetDMMainHandle,WM_DMServerICONState,MB_ICONERROR,0);
+    dsiOK:
+      PostMessage(GetDMMainHandle, WM_DMServerICONState, MB_OK, 0);
+    dsiWarning:
+      PostMessage(GetDMMainHandle, WM_DMServerICONState, MB_ICONWARNING, 0);
+    dsiError:
+      PostMessage(GetDMMainHandle, WM_DMServerICONState, MB_ICONERROR, 0);
   end;
 end;
 
@@ -270,11 +261,10 @@ begin
   //  CreateWinDataMonitor(con_SQL, FKvStationList.Items[FKvStationList.ActiveID])
 end;
 
-function TdmWinSysServer.OpenSQLExcel(conn: TADOConnection;
-  const sqlstr: string): TADOQuery;
+function TdmWinSysServer.OpenSQLExcel(conn: TADOConnection; const sqlstr: string): TADOQuery;
 var
-  i,L:Integer;
-  Err:String;
+  i, L: Integer;
+  Err: string;
 begin
 {  Result:=nil;
   if False=conn.Connected then
@@ -305,18 +295,12 @@ end;
 
 procedure TdmWinSysServer.DataModuleDestroy(Sender: TObject);
 var
-  i:Integer;
+  i: Integer;
 begin
  //释放
   DeleteCriticalSection(FMySection);
  // MSComm_HZ.Free;
 end;
-
-
-
-
-
-
 
 procedure TdmWinSysServer.WndProc(var Msg: TMessage);
 begin
@@ -328,38 +312,34 @@ begin
       end
     else    }
 
-      Msg.Result := DefWindowProc(FWindowHandle, Msg.Msg, Msg.wParam, Msg.lParam);
+  Msg.Result := DefWindowProc(FWindowHandle, Msg.Msg, Msg.wParam, Msg.lParam);
 end;
-
-
-
-
-
 
 procedure TdmWinSysServer.tmrKingConnTimer(Sender: TObject);
 begin
-  tmrKingConn.Enabled:=False;
-  if tmrKingConn.Tag=0 then  //先停止运行
+  tmrKingConn.Enabled := False;
+  if tmrKingConn.Tag = 0 then  //先停止运行
   begin
     Stop;
-    tmrKingConn.Tag:=1;
-    tmrKingConn.Enabled:=True;
+    tmrKingConn.Tag := 1;
+    tmrKingConn.Enabled := True;
   end
-  else if tmrKingConn.Tag>0 then
+  else if tmrKingConn.Tag > 0 then
   begin
     Run;
     if FIsRun then
     begin
-      tmrKingConn.Tag:=-1;
+      tmrKingConn.Tag := -1;
       DMServerAddLog('准备重新连接失败，五秒后重试...');
     end
     else
     begin
-      tmrKingConn.Tag:=tmrKingConn.Tag+1;
-      tmrKingConn.Enabled:=True;
+      tmrKingConn.Tag := tmrKingConn.Tag + 1;
+      tmrKingConn.Enabled := True;
       DMServerAddLog('准备重新连接成功。');
     end;
   end;
 end;
 
 end.
+

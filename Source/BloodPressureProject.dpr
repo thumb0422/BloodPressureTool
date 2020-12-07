@@ -6,10 +6,11 @@ uses
   Windows,
   SysUtils,
   WinSysServer in 'WinSysServer.pas' {frm_SysServer},
-  WinAbout in 'WinAbout.pas' {frm_About},
   DMWinServer in 'DMWinServer.pas' {dmWinSysServer: TDataModule},
   USysServer in 'USysServer.pas',
-  TLog in 'TLog\TLog.pas';
+  TLog in 'TLog.pas',
+  TDBManager in 'TDBManager.pas',
+  ComDefine in 'ComDefine.pas';
 
 {$R *.res}
 
@@ -30,7 +31,8 @@ begin
   begin
     SvcMgr.Application.Initialize;
     UserSysService := TUserSysService.CreateNew(SvcMgr.Application, 0);
-    SvcMgr.Application.CreateForm(Tfrm_SysServer, frm_SysServer);
+    SvcMgr.Application.Title := 'ÑªÑ¹¼ÆÖúÊÖ';
+    Application.CreateForm(Tfrm_SysServer, frm_SysServer);
   SvcMgr.Application.Run;
   end else
   begin

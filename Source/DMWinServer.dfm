@@ -2,8 +2,6 @@ object dmWinSysServer: TdmWinSysServer
   OldCreateOrder = False
   OnCreate = DataModuleCreate
   OnDestroy = DataModuleDestroy
-  Left = 616
-  Top = 251
   Height = 260
   Width = 317
   object tmr_Save: TTimer

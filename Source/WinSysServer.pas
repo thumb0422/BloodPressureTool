@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   Menus, ExtCtrls, StdCtrls, ComCtrls, ShellAPI, ActnList, DateUtils,
-  DMWinServer, Buttons, ImgList, USysServer, OleCtrls, System.ImageList, System.Actions;
+  DMWinServer, Buttons, ImgList, USysServer, OleCtrls, System.ImageList, System.Actions,ComDefine;
 
 type
   Tfrm_SysServer = class(TForm)
@@ -14,32 +14,24 @@ type
     N_Separator: TMenuItem;
     minu_Show: TMenuItem;
     UpdateTimer: TTimer;
-    MainMenu1: TMainMenu;
     actlst1: TActionList;
     act_Show: TAction;
     act_Close: TAction;
     act_Exit: TAction;
-    H1: TMenuItem;
-    A1: TMenuItem;
     tmr_RunTime: TTimer;
     grp1: TGroupBox;
     lbl_NowTime: TLabel;
     lbl_RunTime: TLabel;
     lbl_RunLength: TLabel;
-    stat1: TStatusBar;
-    chk_SysAutoRun: TCheckBox;
     btn_Run: TBitBtn;
     btn_Stop: TBitBtn;
     act_About: TAction;
-    A2: TMenuItem;
     il1: TImageList;
     act_Setup: TAction;
-    O1: TMenuItem;
-    O2: TMenuItem;
     btn_Monitor: TBitBtn;
     act_Log: TAction;
-    L1: TMenuItem;
-    N1: TMenuItem;
+    mechineBtn: TBitBtn;
+    mechineStatesBtn: TBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -50,8 +42,6 @@ type
     procedure tmr_RunTimeTimer(Sender: TObject);
     procedure btn_RunClick(Sender: TObject);
     procedure btn_StopClick(Sender: TObject);
-    procedure act_AboutExecute(Sender: TObject);
-    procedure chk_SysAutoRunClick(Sender: TObject);
     procedure act_SetupExecute(Sender: TObject);
     procedure btn_MonitorClick(Sender: TObject);
     procedure act_LogExecute(Sender: TObject);
@@ -110,8 +100,7 @@ begin
   il1.GetIcon(1, FDMICON_ERROR);
   btn_Run.Enabled := False;
   btn_Stop.Enabled := False;
-  chk_SysAutoRun.Enabled := False;
-  Caption := _SysServerMainTitle + ' 服务管理器';
+  Caption := _SysServerMainTitle + ' 服务';
   lbl_RunTime.Caption := '启动时间: ' + FormatDateTime('yyyy-mm-dd hh:nn:ss ', FAppRunTime) + GetWeek(FAppRunTime);
   tmr_RunTime.Enabled := True;
 
@@ -366,13 +355,6 @@ begin
 //收到窗体显示后的消息
   //创建业务执行模块
   DMWinServerCreate(Self.Handle);
-  chk_SysAutoRun.Checked := GetSysAutoRun;
-  chk_SysAutoRun.Enabled := True;
-  //启动业务
-  if chk_SysAutoRun.Checked then
-    btn_Run.Click
-  else
-    btn_Run.Enabled := True;
 end;
 
 procedure Tfrm_SysServer.OnWM_DMServerState(var Message: TMessage);
@@ -383,7 +365,6 @@ begin
       SetDMServerState(CO_DMServerState_Run); //系统运行
     CO_DMServerState_Stop:
       SetDMServerState(CO_DMServerState_Stop); //系统停止
-
   else
     SetDMServerState(CO_DMServerState_Wait);
   end;
@@ -391,21 +372,14 @@ end;
 
 procedure Tfrm_SysServer.btn_RunClick(Sender: TObject);
 begin
-
   Run;
 end;
 
 procedure Tfrm_SysServer.btn_StopClick(Sender: TObject);
 begin
-
   Stop;
 end;
 
-procedure Tfrm_SysServer.act_AboutExecute(Sender: TObject);
-begin
-  {关于}
-  DMWinServerAbout;
-end;
 
 function Tfrm_SysServer.GetDMServerState: TDMServerState;
 begin
@@ -439,38 +413,28 @@ begin
       begin
         btn_Run.Enabled := False;
         btn_Stop.Enabled := True;
-        stat1.Panels[0].Text := '正在运行 ' + _SysServerMainTitle + ' ' + _SysServerSubtitle;
       end;
     CO_DMServerState_Runing:
       begin
         btn_Run.Enabled := False;
         btn_Stop.Enabled := False;
-        stat1.Panels[0].Text := '正在启动 ' + _SysServerMainTitle + ' ' + _SysServerSubtitle;
       end;
 
     CO_DMServerState_Stop:
       begin
         btn_Run.Enabled := True;
         btn_Stop.Enabled := False;
-        stat1.Panels[0].Text := '已停止 ' + _SysServerMainTitle + ' ' + _SysServerSubtitle;
       end;
     CO_DMServerState_Stoping:
       begin
         btn_Run.Enabled := False;
         btn_Stop.Enabled := False;
-        stat1.Panels[0].Text := '正在停止 ' + _SysServerMainTitle + ' ' + _SysServerSubtitle;
       end;
     CO_DMServerState_Wait:
       begin
 
       end;
   end;
-end;
-
-procedure Tfrm_SysServer.chk_SysAutoRunClick(Sender: TObject);
-begin
-  {是否程序启动后自动运行}
-  SetSysAutoRun(chk_SysAutoRun.Checked);
 end;
 
 procedure Tfrm_SysServer.act_SetupExecute(Sender: TObject);

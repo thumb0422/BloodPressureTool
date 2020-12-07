@@ -3,16 +3,15 @@ object frm_SysServer: Tfrm_SysServer
   Top = 165
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
-  Caption = 'Borland Socket Server'#27979#35797
-  ClientHeight = 154
-  ClientWidth = 332
+  Caption = #34880#21387#35745#21161#25163
+  ClientHeight = 200
+  ClientWidth = 343
   Color = clBtnFace
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
   Font.Name = #23435#20307
   Font.Style = []
-  Menu = MainMenu1
   OldCreateOrder = True
   Position = poScreenCenter
   OnCloseQuery = FormCloseQuery
@@ -21,11 +20,14 @@ object frm_SysServer: Tfrm_SysServer
   PixelsPerInch = 96
   TextHeight = 12
   object grp1: TGroupBox
-    Left = 8
-    Top = 4
-    Width = 313
-    Height = 145
+    Left = 0
+    Top = 0
+    Width = 343
+    Height = 200
+    Align = alClient
     TabOrder = 0
+    ExplicitWidth = 324
+    ExplicitHeight = 153
     object lbl_NowTime: TLabel
       Left = 16
       Top = 48
@@ -178,28 +180,25 @@ object frm_SysServer: Tfrm_SysServer
       TabOrder = 2
       OnClick = btn_MonitorClick
     end
-  end
-  object stat1: TStatusBar
-    Left = 0
-    Top = 132
-    Width = 332
-    Height = 22
-    Panels = <
-      item
-        Width = 50
-      end>
-  end
-  object chk_SysAutoRun: TCheckBox
-    Left = 8
-    Top = 160
-    Width = 145
-    Height = 9
-    Caption = #24403#21551#21160#31995#32479#26102#33258#21160#36816#34892
-    TabOrder = 1
-    OnClick = chk_SysAutoRunClick
+    object mechineBtn: TBitBtn
+      Left = 200
+      Top = 144
+      Width = 75
+      Height = 25
+      Caption = #35774#22791#31649#29702
+      TabOrder = 3
+    end
+    object mechineStatesBtn: TBitBtn
+      Left = 40
+      Top = 144
+      Width = 138
+      Height = 25
+      Caption = #34880#21387#35745#29366#24577#26174#31034
+      TabOrder = 4
+    end
   end
   object PopupMenu: TPopupMenu
-    Left = 192
+    Left = 176
     Top = 16
     object minu_Show: TMenuItem
       Action = act_Show
@@ -207,9 +206,6 @@ object frm_SysServer: Tfrm_SysServer
     end
     object N_Separator: TMenuItem
       Caption = '-'
-    end
-    object A2: TMenuItem
-      Action = act_About
     end
     object minu_Close: TMenuItem
       Action = act_Close
@@ -219,30 +215,8 @@ object frm_SysServer: Tfrm_SysServer
     Enabled = False
     Interval = 2000
     OnTimer = UpdateTimerTimer
-    Left = 160
+    Left = 120
     Top = 16
-  end
-  object MainMenu1: TMainMenu
-    Left = 128
-    Top = 16
-    object O2: TMenuItem
-      Caption = #31995#32479'(&X)'
-      object O1: TMenuItem
-        Action = act_Setup
-      end
-      object N1: TMenuItem
-        Caption = '-'
-      end
-      object L1: TMenuItem
-        Action = act_Log
-      end
-    end
-    object H1: TMenuItem
-      Caption = #24110#21161'(&H)'
-      object A1: TMenuItem
-        Action = act_About
-      end
-    end
   end
   object actlst1: TActionList
     Left = 224
@@ -261,7 +235,6 @@ object frm_SysServer: Tfrm_SysServer
     end
     object act_About: TAction
       Caption = #20851#20110'(&A)...'
-      OnExecute = act_AboutExecute
     end
     object act_Setup: TAction
       Caption = #35774#32622'(&O)'
@@ -282,7 +255,7 @@ object frm_SysServer: Tfrm_SysServer
     Left = 288
     Top = 16
     Bitmap = {
-      494C010104000900180010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010104000900240010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

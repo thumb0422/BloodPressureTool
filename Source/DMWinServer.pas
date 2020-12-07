@@ -6,21 +6,6 @@ uses
   SysUtils, Messages, Windows, Classes, Forms, DB, ADODB, ExtCtrls, USysServer,
   Dialogs;
 
-const
-//****************************** 每个项目中需要修改的内容 ********************
-  {服务的显示名称}
-  _SysServerDisplayName = 'XYZ_SYSServer';
-  {服务名称}
-  _SysServerName = 'XYZ_SYSServer';
-  {服务的说明}
-  _SysServerReadme = '系统服务程序';
-  {系统的主标题}
-  _SysServerMainTitle = '系统服务程序'; //系统主标题
-  {系统的副标题}
-  _SysServerSubtitle = ''; //副标题
-  {系统的唯一标识,用来防止同一个程序启动多份}
-  _SysServerMutexID = '01D01D9A-950A-48F5-A488-A042F2480CF6'; //系统唯一标识
-
 type
   TdmWinSysServer = class(TDataModule)
     tmr_Save: TTimer;
@@ -69,7 +54,7 @@ type
 implementation
 
 uses
-  DateUtils, Contnrs, StrUtils, Controls, WinAbout, Math;
+  DateUtils, Contnrs, StrUtils, Controls, Math,ComDefine;
 
 {$R *.dfm}
 
@@ -250,7 +235,7 @@ end;
 
 procedure TdmWinSysServer.ShowAbout;
 begin
-  CreateWinAbout;
+
 end;
 
 procedure TdmWinSysServer.ShowWinDataMonitor;

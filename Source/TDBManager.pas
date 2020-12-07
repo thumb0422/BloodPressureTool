@@ -1,8 +1,7 @@
-unit ILog;
+unit TDBManager;
 
 interface
 
 implementation
 
 end.
-

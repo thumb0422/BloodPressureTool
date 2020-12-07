@@ -1,7 +1,4 @@
 out/
 *.dcu
-
 out/ProSysServer.exe
-
-Source/__history/*
-Source/TLog/__history/*
+Source/__history

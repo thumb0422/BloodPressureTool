@@ -31,10 +31,11 @@ begin
   begin
     SvcMgr.Application.Initialize;
     UserSysService := TUserSysService.CreateNew(SvcMgr.Application, 0);
-    SvcMgr.Application.Title := 'ÑªÑ¹¼ÆÖúÊÖ';
+    SvcMgr.Application.Title := _SysServerMainTitle;
     Application.CreateForm(Tfrm_SysServer, frm_SysServer);
-  SvcMgr.Application.Run;
-  end else
+    SvcMgr.Application.Run;
+  end
+  else
   begin
     Forms.Application.ShowMainForm := False;
     Forms.Application.Initialize;

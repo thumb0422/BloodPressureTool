@@ -26,8 +26,6 @@ object frm_SysServer: Tfrm_SysServer
     Height = 200
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 324
-    ExplicitHeight = 153
     object lbl_NowTime: TLabel
       Left = 16
       Top = 48
@@ -180,13 +178,14 @@ object frm_SysServer: Tfrm_SysServer
       TabOrder = 2
       OnClick = btn_MonitorClick
     end
-    object mechineBtn: TBitBtn
+    object setBtn: TBitBtn
       Left = 200
       Top = 144
       Width = 75
       Height = 25
-      Caption = #35774#22791#31649#29702
+      Caption = #35774#32622
       TabOrder = 3
+      OnClick = setBtnClick
     end
     object mechineStatesBtn: TBitBtn
       Left = 40
@@ -195,6 +194,7 @@ object frm_SysServer: Tfrm_SysServer
       Height = 25
       Caption = #34880#21387#35745#29366#24577#26174#31034
       TabOrder = 4
+      OnClick = mechineStatesBtnClick
     end
   end
   object PopupMenu: TPopupMenu
@@ -255,7 +255,7 @@ object frm_SysServer: Tfrm_SysServer
     Left = 288
     Top = 16
     Bitmap = {
-      494C010104000900240010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010104000900300010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

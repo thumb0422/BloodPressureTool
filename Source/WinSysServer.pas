@@ -30,7 +30,7 @@ type
     act_Setup: TAction;
     btn_Monitor: TBitBtn;
     act_Log: TAction;
-    mechineBtn: TBitBtn;
+    setBtn: TBitBtn;
     mechineStatesBtn: TBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -45,6 +45,8 @@ type
     procedure act_SetupExecute(Sender: TObject);
     procedure btn_MonitorClick(Sender: TObject);
     procedure act_LogExecute(Sender: TObject);
+    procedure mechineStatesBtnClick(Sender: TObject);
+    procedure setBtnClick(Sender: TObject);
   private
     FTaskMessage: DWord;
     FIconData: TNotifyIconData;
@@ -172,6 +174,16 @@ begin
     FTaskMessage := RegisterWindowMessage('TaskbarCreated')
   else
     UpdateTimer.Enabled := True;
+end;
+
+procedure Tfrm_SysServer.setBtnClick(Sender: TObject);
+begin
+//
+end;
+
+procedure Tfrm_SysServer.mechineStatesBtnClick(Sender: TObject);
+begin
+//
 end;
 
 procedure Tfrm_SysServer.FormCloseQuery(Sender: TObject; var CanClose: Boolean);

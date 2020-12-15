@@ -10,7 +10,9 @@ uses
   USysServer in 'USysServer.pas',
   TLog in 'TLog.pas',
   TDBManager in 'TDBManager.pas',
-  ComDefine in 'ComDefine.pas';
+  ComDefine in 'ComDefine.pas',
+  SetForm in 'SetForm.pas' {TSetForm},
+  UserForm in 'UserForm.pas' {TUserForm};
 
 {$R *.res}
 
@@ -33,7 +35,7 @@ begin
     UserSysService := TUserSysService.CreateNew(SvcMgr.Application, 0);
     SvcMgr.Application.Title := _SysServerMainTitle;
     Application.CreateForm(Tfrm_SysServer, frm_SysServer);
-    SvcMgr.Application.Run;
+  SvcMgr.Application.Run;
   end
   else
   begin

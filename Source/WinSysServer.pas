@@ -25,13 +25,19 @@ type
     lbl_RunLength: TLabel;
     btn_Run: TBitBtn;
     btn_Stop: TBitBtn;
-    act_About: TAction;
     il1: TImageList;
-    act_Setup: TAction;
-    btn_Monitor: TBitBtn;
-    act_Log: TAction;
     setBtn: TBitBtn;
     mechineStatesBtn: TBitBtn;
+    MainMenu1: TMainMenu;
+    O2: TMenuItem;
+    O1: TMenuItem;
+    N1: TMenuItem;
+    L1: TMenuItem;
+    H1: TMenuItem;
+    A1: TMenuItem;
+    B1: TMenuItem;
+    act_User: TAction;
+    act_bp: TAction;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -43,9 +49,10 @@ type
     procedure btn_RunClick(Sender: TObject);
     procedure btn_StopClick(Sender: TObject);
     procedure act_SetupExecute(Sender: TObject);
-    procedure btn_MonitorClick(Sender: TObject);
     procedure act_LogExecute(Sender: TObject);
     procedure mechineStatesBtnClick(Sender: TObject);
+    procedure act_UserExecute(Sender: TObject);
+    procedure act_bpExecute(Sender: TObject);
     procedure setBtnClick(Sender: TObject);
   private
     FTaskMessage: DWord;
@@ -176,14 +183,9 @@ begin
     UpdateTimer.Enabled := True;
 end;
 
-procedure Tfrm_SysServer.setBtnClick(Sender: TObject);
-begin
-//
-end;
-
 procedure Tfrm_SysServer.mechineStatesBtnClick(Sender: TObject);
 begin
-//
+  DMWinBPStates;
 end;
 
 procedure Tfrm_SysServer.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -292,6 +294,16 @@ end;
 procedure Tfrm_SysServer.act_ShowExecute(Sender: TObject);
 begin
   ShowModal;
+end;
+
+procedure Tfrm_SysServer.act_UserExecute(Sender: TObject);
+begin
+//
+end;
+
+procedure Tfrm_SysServer.act_bpExecute(Sender: TObject);
+begin
+//
 end;
 
 procedure Tfrm_SysServer.act_CloseExecute(Sender: TObject);
@@ -406,6 +418,11 @@ begin
   DMWinServerRun;
 end;
 
+procedure Tfrm_SysServer.setBtnClick(Sender: TObject);
+begin
+  DMWinServerSet;
+end;
+
 procedure Tfrm_SysServer.Stop;
 begin
   //开始停止系统业务
@@ -453,12 +470,6 @@ procedure Tfrm_SysServer.act_SetupExecute(Sender: TObject);
 begin
   {显示设置窗体}
   DMWinServerSetup;
-end;
-
-procedure Tfrm_SysServer.btn_MonitorClick(Sender: TObject);
-begin
-  {显示数据监测窗体}
-  DMWinServerDataMonitor;
 end;
 
 procedure Tfrm_SysServer.act_LogExecute(Sender: TObject);

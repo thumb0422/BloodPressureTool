@@ -46,8 +46,6 @@ type
     procedure SetDMServerICONState(value: TDMServerICONState);
     procedure ShowAbout; //关于
     procedure ShowSetup; //设置
-    procedure ShowWinDataMonitor; //数据监测窗体
-//    procedure ShowWinKingEQU;
   public
   end;
 
@@ -236,14 +234,6 @@ end;
 procedure TdmWinSysServer.ShowAbout;
 begin
 
-end;
-
-procedure TdmWinSysServer.ShowWinDataMonitor;
-begin
-  Showmessage('数据监测窗体');
-  //if Assigned(FKvStationList) then
-  //if FKvStationList.ActiveID>=0 then
-  //  CreateWinDataMonitor(con_SQL, FKvStationList.Items[FKvStationList.ActiveID])
 end;
 
 function TdmWinSysServer.OpenSQLExcel(conn: TADOConnection; const sqlstr: string): TADOQuery;

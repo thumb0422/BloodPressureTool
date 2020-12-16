@@ -4,7 +4,7 @@ interface
 
 uses
   SvcMgr, SysUtils, Messages, Windows, Classes, DateUtils, Forms, StdCtrls,
-  ComCtrls, ScktComp, ShellAPI, WinSvc, Registry, Dialogs,ComDefine;
+  ComCtrls, ScktComp, ShellAPI, WinSvc, Registry, Dialogs,ComDefine,SetForm,UserForm,BPStatesForm;
 
 type
   TDMServerState = Integer;
@@ -49,11 +49,7 @@ procedure DMWinServerAbout;
 procedure DMWinServerSetup;
   {数据监测窗体}
 
-procedure DMWinServerDataMonitor;
-  {显示日志窗体}
-
 procedure DMWinServerLog;
- // procedure DMWinKingEQU;
 
   {添加日志}
 
@@ -62,6 +58,11 @@ procedure DMServerAddLog(const S: string);
   {主窗体的  Handle}
 function GetDMMainHandle: THandle;
   {程序关闭}
+
+  {设置窗体}
+procedure DMWinServerSet;
+{状态显示窗体}
+procedure DMWinBPStates;
 
 procedure DMWinServerFree;
 
@@ -263,12 +264,6 @@ begin
   dmSysServer.ShowSetup;
 end;
 
-procedure DMWinServerDataMonitor;
-begin
-  {显示数据监测窗体}
-  dmSysServer.ShowWinDataMonitor;
-end;
-
 procedure DMServerAddLog(const S: string);
 begin
 //添加日志
@@ -280,12 +275,15 @@ begin
   Showmessage('显示日志窗体');
   //CreateWinSysServerLog;
 end;
-     {
-procedure DMWinKingEQU;
+procedure DMWinServerSet;
 begin
-  dmSysServer.ShowWinKingEQU;
-end;  }
+  CreateSetWinForm;
+end;
 
+procedure DMWinBPStates;
+begin
+  CreateBPStatesWinForm;
+end;
 function DateTimeBetweenStr(const ANow, AThen: TDateTime): string;
 var
   i: Integer;

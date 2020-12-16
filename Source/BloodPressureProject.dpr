@@ -12,7 +12,8 @@ uses
   TDBManager in 'TDBManager.pas',
   ComDefine in 'ComDefine.pas',
   SetForm in 'SetForm.pas' {TSetForm},
-  UserForm in 'UserForm.pas' {TUserForm};
+  UserForm in 'UserForm.pas' {TUserForm},
+  BPStatesForm in 'BPStatesForm.pas' {TBPStatesForm};
 
 {$R *.res}
 

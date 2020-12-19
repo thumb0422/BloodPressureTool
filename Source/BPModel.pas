@@ -1,7 +1,6 @@
 unit BPModel;
 
 interface
-uses System;
 
 type
   TBPModel = class

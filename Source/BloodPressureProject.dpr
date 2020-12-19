@@ -14,7 +14,15 @@ uses
   SetForm in 'SetForm.pas' {TSetForm},
   UserForm in 'UserForm.pas' {TUserForm},
   BPStatesForm in 'BPStatesForm.pas' {TBPStatesForm},
-  BPModel in 'BPModel.pas';
+  BPModel in 'BPModel.pas',
+  SQLite3 in 'plugin\SQLite3.pas',
+  SQLiteTable3 in 'plugin\SQLiteTable3.pas',
+  superdate in 'plugin\superdate.pas',
+  superobject in 'plugin\superobject.pas',
+  supertimezone in 'plugin\supertimezone.pas',
+  supertypes in 'plugin\supertypes.pas',
+  superxmlparser in 'plugin\superxmlparser.pas',
+  HDBManager in 'HDBManager.pas';
 
 {$R *.res}
 

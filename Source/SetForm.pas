@@ -3,9 +3,9 @@ unit SetForm;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Data.DB, Vcl.ExtCtrls,
-  Vcl.Grids, Vcl.DBGrids,BPModel, Datasnap.DBClient, Datasnap.Provider;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Data.DB, Vcl.ExtCtrls,
+  Vcl.Grids, Vcl.DBGrids, BPModel, Datasnap.DBClient, Datasnap.Provider;
 
 type
   TTSetForm = class(TForm)
@@ -18,7 +18,7 @@ type
     groupEdit: TEdit;
     sNoEdit: TEdit;
     macEdit: TEdit;
-    Button1: TButton;
+    saveBtn: TButton;
     descEdit: TEdit;
     addBtn: TButton;
     DataSource1: TDataSource;
@@ -27,28 +27,35 @@ type
     ClientDataSet1MMac: TStringField;
     ClientDataSet1MGroup: TStringField;
     ClientDataSet1MDesc: TStringField;
-    procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure addBtnClick(Sender: TObject);
+    procedure saveBtnClick(Sender: TObject);
   private
     { Private declarations }
 //    function praseModelToDataSet
     procedure generateDatas;
+    procedure checkDataValid;
+    procedure QryDatas;
   public
     { Public declarations }
   end;
+
 procedure CreateSetWinForm;
+
 var
   TSetForm: TTSetForm;
 
 implementation
 
+uses
+  HDBManager, superobject;
 {$R *.dfm}
+
 procedure CreateSetWinForm;
 var
   sForm: TTSetForm;
 begin
-  sForm:=TTSetForm.Create(Application);
+  sForm := TTSetForm.Create(Application);
   sForm.ShowModal;
   sForm.Free;
 end;
@@ -61,35 +68,88 @@ begin
   self.descEdit.Clear;
 end;
 
-procedure TTSetForm.Button1Click(Sender: TObject);
-begin
-// save
-end;
-
 procedure TTSetForm.FormCreate(Sender: TObject);
 begin
   self.Caption := 'ÑªÑ¹¼ÆÐÅÏ¢Â¼Èë';
-//  self.ClientDataSet1 := TClientDataSet.Create(Self);
 //  Self.generateDatas;
+  QryDatas
 end;
 
 procedure TTSetForm.generateDatas;
 var
   I: Integer;
 begin
-self.ClientDataSet1.DisableControls;
-  self.ClientDataSet1.Active := False;
-  self.ClientDataSet1.Open;
+  ClientDataSet1.CreateDataSet;
+  ClientDataSet1.DisableControls;
   for I := 0 to 10 do
   begin
-    self.ClientDataSet1.Append;
-    self.ClientDataSet1.ParamByName('MNo').AsString := IntToStr(i*100 + 1);
-    self.ClientDataSet1.ParamByName('MMac').AsString := 'XXXXXXXX';
-    self.ClientDataSet1.ParamByName('MGroup').AsString := '192.168.1.'+ IntToStr(i*3);
-    self.ClientDataSet1.ParamByName('MDesc').AsString := '²âÊÔ' + IntToStr(i*4);
-    self.ClientDataSet1.Post;
+    with ClientDataSet1 do
+    begin
+      Append;
+      ClientDataSet1.FieldByName('MNo').AsString := IntToStr(I * 100 + 1);
+      ClientDataSet1.FieldByName('MMac').AsString := 'XXXXXXXX';
+      ClientDataSet1.FieldByName('MGroup').AsString := '192.168.1.' + IntToStr(I * 3);
+      ClientDataSet1.FieldByName('MDesc').AsString := '²âÊÔ' + IntToStr(I * 4);
+      Post;
+    end;
+
   end;
   self.ClientDataSet1.EnableControls;
+  if ClientDataSet1.Active = False then
+  begin
+    ClientDataSet1.Open;
+  end;
 end;
 
+procedure TTSetForm.QryDatas;
+var
+  jsonData: ISuperObject;
+  subData: ISuperObject;
+begin
+  ClientDataSet1.Close;
+  ClientDataSet1.CreateDataSet;
+  jsonData := TDBManager.Instance.getDataBySql('Select * From T_M_Infos Order By id');
+  with ClientDataSet1 do
+  begin
+    if jsonData.I['rowCount'] > 0 then
+    begin
+      for subData in jsonData['data'] do
+      begin
+        Append;
+        ClientDataSet1.FieldByName('MNo').AsString := subData.S['MNo'];
+        ClientDataSet1.FieldByName('MMac').AsString := subData['MMac'].AsString;
+        ClientDataSet1.FieldByName('MGroup').AsString := subData['MGroup'].AsString;
+        ClientDataSet1.FieldByName('MDesc').AsString := subData['MDesc'].AsString;
+        Post;
+      end;
+    end;
+  end;
+
+  if ClientDataSet1.Active = False then
+  begin
+    ClientDataSet1.Open;
+  end;
+end;
+
+procedure TTSetForm.saveBtnClick(Sender: TObject);
+var
+  sql: string;
+  sqlList: TStringList;
+begin
+  //todo  check data valid
+  checkDataValid;
+  sqlList := TStringList.Create;
+  sql := Format('Delete from T_M_Infos where 1=1 and MMac = %s', [QuotedStr(macEdit.Text)]);
+  sqlList.Add(sql);
+  sql := Format('Insert Into T_M_Infos (MNo,MMac,MGroup,MDesc) Values (%s,%S,%s,%s)', [QuotedStr(sNoEdit.Text), QuotedStr(macEdit.Text), QuotedStr(groupEdit.Text), QuotedStr(descEdit.Text)]);
+  sqlList.Add(sql);
+  TDBManager.Instance.execSql(sqlList);
+  QryDatas;
+end;
+
+procedure checkDataValid;
+begin
+
+end;
 end.
+

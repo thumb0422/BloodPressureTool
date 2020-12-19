@@ -70,8 +70,6 @@ object TSetForm: TTSetForm
     Height = 404
     Align = alRight
     TabOrder = 1
-    ExplicitLeft = 491
-    ExplicitHeight = 390
     object GroupLabel: TLabel
       Left = 20
       Top = 17
@@ -121,14 +119,14 @@ object TSetForm: TTSetForm
       Height = 21
       TabOrder = 2
     end
-    object Button1: TButton
+    object saveBtn: TButton
       Left = 135
       Top = 328
       Width = 75
       Height = 25
       Caption = #20445#23384'(&S)'
       TabOrder = 5
-      OnClick = Button1Click
+      OnClick = saveBtnClick
     end
     object descEdit: TEdit
       Left = 64

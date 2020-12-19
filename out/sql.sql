@@ -16,6 +16,6 @@ CREATE TABLE IF NOT EXISTS "T_M_Infos" (
 	"id"	INTEGER PRIMARY KEY AUTOINCREMENT,
 	"MNo"	varchar(50) NOT NULL,
 	"MMac"	varchar(50) NOT NULL,
-	"MGroup" varchar(10),
+	"MGroup" varchar(50),
 	"MDesc"	varchar(250)
 );

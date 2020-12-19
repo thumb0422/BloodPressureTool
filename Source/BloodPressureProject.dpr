@@ -13,7 +13,8 @@ uses
   ComDefine in 'ComDefine.pas',
   SetForm in 'SetForm.pas' {TSetForm},
   UserForm in 'UserForm.pas' {TUserForm},
-  BPStatesForm in 'BPStatesForm.pas' {TBPStatesForm};
+  BPStatesForm in 'BPStatesForm.pas' {TBPStatesForm},
+  BPModel in 'BPModel.pas';
 
 {$R *.res}
 

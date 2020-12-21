@@ -4,7 +4,7 @@ interface
 
 uses
   SvcMgr, SysUtils, Messages, Windows, Classes, DateUtils, Forms, StdCtrls,
-  ComCtrls, ScktComp, ShellAPI, WinSvc, Registry, Dialogs,ComDefine,SetForm,UserForm,BPStatesForm;
+  ComCtrls, ScktComp, ShellAPI, WinSvc, Registry, Dialogs,ComDefine,SetForm,BPStatesForm;
 
 type
   TDMServerState = Integer;

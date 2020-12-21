@@ -19,3 +19,8 @@ CREATE TABLE IF NOT EXISTS "T_M_Infos" (
 	"MGroup" varchar(50),
 	"MDesc"	varchar(250)
 );
+CREATE TABLE IF NOT EXISTS "T_M_Infos_Status" (
+	"id"	INTEGER PRIMARY KEY AUTOINCREMENT,
+	"MMac"	varchar(50) NOT NULL,
+	"MStatus" varchar(10)
+);

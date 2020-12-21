@@ -23,9 +23,6 @@ object TBPStatesForm: TTBPStatesForm
     Height = 41
     Align = alBottom
     TabOrder = 0
-    ExplicitLeft = 328
-    ExplicitTop = 504
-    ExplicitWidth = 185
     object startBtn: TBitBtn
       Left = 200
       Top = 6
@@ -61,9 +58,5 @@ object TBPStatesForm: TTBPStatesForm
     Height = 559
     Align = alClient
     TabOrder = 1
-    ExplicitLeft = 248
-    ExplicitTop = 104
-    ExplicitWidth = 185
-    ExplicitHeight = 41
   end
 end

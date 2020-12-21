@@ -22,7 +22,9 @@ uses
   supertimezone in 'plugin\supertimezone.pas',
   supertypes in 'plugin\supertypes.pas',
   superxmlparser in 'plugin\superxmlparser.pas',
-  HDBManager in 'HDBManager.pas';
+  HDBManager in 'HDBManager.pas',
+  DetailInfoView in 'DetailInfoView.pas',
+  DetailBPModel in 'DetailBPModel.pas';
 
 {$R *.res}
 

@@ -98,29 +98,8 @@ object TSetForm: TTSetForm
       Height = 13
       Caption = #22791#27880#65306
     end
-    object groupEdit: TEdit
-      Left = 64
-      Top = 14
-      Width = 150
-      Height = 21
-      TabOrder = 0
-    end
-    object sNoEdit: TEdit
-      Left = 64
-      Top = 95
-      Width = 150
-      Height = 21
-      TabOrder = 1
-    end
-    object macEdit: TEdit
-      Left = 64
-      Top = 176
-      Width = 150
-      Height = 21
-      TabOrder = 2
-    end
     object saveBtn: TButton
-      Left = 135
+      Left = 168
       Top = 328
       Width = 75
       Height = 25
@@ -128,21 +107,59 @@ object TSetForm: TTSetForm
       TabOrder = 5
       OnClick = saveBtnClick
     end
-    object descEdit: TEdit
-      Left = 64
-      Top = 257
-      Width = 150
-      Height = 21
-      TabOrder = 3
-    end
     object addBtn: TButton
-      Left = 40
+      Left = 6
       Top = 328
       Width = 75
       Height = 25
       Caption = #26032#22686'(&A)'
-      TabOrder = 4
+      TabOrder = 0
       OnClick = addBtnClick
+    end
+    object groupEdit: TDBEdit
+      Left = 64
+      Top = 14
+      Width = 153
+      Height = 21
+      DataField = 'MGroup'
+      DataSource = DataSource1
+      TabOrder = 1
+    end
+    object noEdit: TDBEdit
+      Left = 62
+      Top = 100
+      Width = 153
+      Height = 21
+      DataField = 'MNo'
+      DataSource = DataSource1
+      TabOrder = 2
+    end
+    object macEdit: TDBEdit
+      Left = 60
+      Top = 180
+      Width = 153
+      Height = 21
+      DataField = 'MMac'
+      DataSource = DataSource1
+      TabOrder = 3
+    end
+    object descEdit: TDBEdit
+      Left = 64
+      Top = 260
+      Width = 153
+      Height = 21
+      DataField = 'MDesc'
+      DataSource = DataSource1
+      TabOrder = 4
+    end
+    object delBtn: TButton
+      Left = 87
+      Top = 328
+      Width = 75
+      Height = 25
+      Caption = #21024#38500'(&D)'
+      TabOrder = 6
+      OnClick = delBtnClick
     end
   end
   object DataSource1: TDataSource

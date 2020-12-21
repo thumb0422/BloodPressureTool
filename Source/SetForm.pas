@@ -5,7 +5,8 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Data.DB, Vcl.ExtCtrls,
-  Vcl.Grids, Vcl.DBGrids, BPModel, Datasnap.DBClient, Datasnap.Provider;
+  Vcl.DBGrids, Datasnap.DBClient,
+  Vcl.DBCtrls, Vcl.Mask, Vcl.Grids;
 
 type
   TTSetForm = class(TForm)
@@ -15,11 +16,7 @@ type
     sNoLabel: TLabel;
     macLabel: TLabel;
     descLabel: TLabel;
-    groupEdit: TEdit;
-    sNoEdit: TEdit;
-    macEdit: TEdit;
     saveBtn: TButton;
-    descEdit: TEdit;
     addBtn: TButton;
     DataSource1: TDataSource;
     ClientDataSet1: TClientDataSet;
@@ -27,9 +24,15 @@ type
     ClientDataSet1MMac: TStringField;
     ClientDataSet1MGroup: TStringField;
     ClientDataSet1MDesc: TStringField;
+    groupEdit: TDBEdit;
+    noEdit: TDBEdit;
+    macEdit: TDBEdit;
+    descEdit: TDBEdit;
+    delBtn: TButton;
     procedure FormCreate(Sender: TObject);
     procedure addBtnClick(Sender: TObject);
     procedure saveBtnClick(Sender: TObject);
+    procedure delBtnClick(Sender: TObject);
   private
     { Private declarations }
 //    function praseModelToDataSet
@@ -62,17 +65,24 @@ end;
 
 procedure TTSetForm.addBtnClick(Sender: TObject);
 begin
-  self.sNoEdit.Clear;
-  self.groupEdit.Clear;
-  self.macEdit.Clear;
-  self.descEdit.Clear;
+  if ClientDataSet1.Active = False then
+  begin
+    ClientDataSet1.Open;
+  end;
+  ClientDataSet1.Append;
+end;
+
+procedure TTSetForm.delBtnClick(Sender: TObject);
+begin
+//del
+  ClientDataSet1.Delete;
 end;
 
 procedure TTSetForm.FormCreate(Sender: TObject);
 begin
   self.Caption := '血压计信息录入';
 //  Self.generateDatas;
-  QryDatas
+  QryDatas;
 end;
 
 procedure TTSetForm.generateDatas;
@@ -135,21 +145,34 @@ procedure TTSetForm.saveBtnClick(Sender: TObject);
 var
   sql: string;
   sqlList: TStringList;
+  I: Integer;
 begin
-  //todo  check data valid
+  //todo
   checkDataValid;
+  if ClientDataSet1.Active = True then
+  begin
+    ClientDataSet1.Post;
+  end;
   sqlList := TStringList.Create;
-  sql := Format('Delete from T_M_Infos where 1=1 and MMac = %s', [QuotedStr(macEdit.Text)]);
-  sqlList.Add(sql);
-  sql := Format('Insert Into T_M_Infos (MNo,MMac,MGroup,MDesc) Values (%s,%S,%s,%s)', [QuotedStr(sNoEdit.Text), QuotedStr(macEdit.Text), QuotedStr(groupEdit.Text), QuotedStr(descEdit.Text)]);
-  sqlList.Add(sql);
+  ClientDataSet1.DisableControls;
+  ClientDataSet1.First;
+  while not ClientDataSet1.Eof do
+  begin
+    sql := Format('Delete from T_M_Infos where 1=1 and MMac = %s', [QuotedStr(ClientDataSet1.FieldByName('MMac').AsString)]);
+    sqlList.Add(sql);
+    sql := Format('Insert Into T_M_Infos (MNo,MMac,MGroup,MDesc) Values (%s,%S,%s,%s)', [QuotedStr(ClientDataSet1.FieldByName('MNo').AsString), QuotedStr(ClientDataSet1.FieldByName('MMac').AsString), QuotedStr(ClientDataSet1.FieldByName('MGroup').AsString), QuotedStr(ClientDataSet1.FieldByName('MDesc').AsString)]);
+    sqlList.Add(sql);
+    ClientDataSet1.Next;
+  end;
+  ClientDataSet1.EnableControls;
   TDBManager.Instance.execSql(sqlList);
   QryDatas;
 end;
 
-procedure checkDataValid;
+procedure TTSetForm.checkDataValid;
 begin
 
 end;
+
 end.
 

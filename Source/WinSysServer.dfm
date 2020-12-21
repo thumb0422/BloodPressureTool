@@ -4,8 +4,8 @@ object frm_SysServer: Tfrm_SysServer
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = #34880#21387#35745#21161#25163
-  ClientHeight = 192
-  ClientWidth = 353
+  ClientHeight = 167
+  ClientWidth = 354
   Color = clBtnFace
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
@@ -23,12 +23,10 @@ object frm_SysServer: Tfrm_SysServer
   object grp1: TGroupBox
     Left = 0
     Top = 0
-    Width = 353
-    Height = 192
+    Width = 354
+    Height = 167
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 343
-    ExplicitHeight = 160
     object lbl_NowTime: TLabel
       Left = 16
       Top = 48
@@ -246,7 +244,7 @@ object frm_SysServer: Tfrm_SysServer
     Left = 288
     Top = 16
     Bitmap = {
-      494C010104000900380010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010104000900400010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

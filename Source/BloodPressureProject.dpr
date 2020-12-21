@@ -24,7 +24,8 @@ uses
   superxmlparser in 'plugin\superxmlparser.pas',
   HDBManager in 'HDBManager.pas',
   DetailInfoView in 'DetailInfoView.pas',
-  DetailBPModel in 'DetailBPModel.pas';
+  DetailBPModel in 'DetailBPModel.pas',
+  DataManager in 'DataManager.pas';
 
 {$R *.res}
 

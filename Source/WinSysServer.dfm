@@ -4,8 +4,8 @@ object frm_SysServer: Tfrm_SysServer
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = #34880#21387#35745#21161#25163
-  ClientHeight = 167
-  ClientWidth = 354
+  ClientHeight = 146
+  ClientWidth = 343
   Color = clBtnFace
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
@@ -23,10 +23,11 @@ object frm_SysServer: Tfrm_SysServer
   object grp1: TGroupBox
     Left = 0
     Top = 0
-    Width = 354
-    Height = 167
+    Width = 343
+    Height = 146
     Align = alClient
     TabOrder = 0
+    ExplicitHeight = 133
     object lbl_NowTime: TLabel
       Left = 16
       Top = 48
@@ -49,8 +50,8 @@ object frm_SysServer: Tfrm_SysServer
       Caption = #31995#32479#36816#34892':'
     end
     object btn_Run: TBitBtn
-      Left = 144
-      Top = 104
+      Left = 168
+      Top = 67
       Width = 75
       Height = 25
       Caption = #21551#21160'(&S)'
@@ -107,11 +108,12 @@ object frm_SysServer: Tfrm_SysServer
         E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8}
       NumGlyphs = 2
       TabOrder = 0
+      Visible = False
       OnClick = btn_RunClick
     end
     object btn_Stop: TBitBtn
-      Left = 224
-      Top = 104
+      Left = 248
+      Top = 67
       Width = 75
       Height = 25
       Caption = #20572#27490'(&O)'
@@ -168,11 +170,12 @@ object frm_SysServer: Tfrm_SysServer
         E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8E8}
       NumGlyphs = 2
       TabOrder = 1
+      Visible = False
       OnClick = btn_StopClick
     end
     object setBtn: TBitBtn
-      Left = 200
-      Top = 144
+      Left = 208
+      Top = 112
       Width = 75
       Height = 25
       Caption = #35774#32622
@@ -180,8 +183,8 @@ object frm_SysServer: Tfrm_SysServer
       OnClick = setBtnClick
     end
     object mechineStatesBtn: TBitBtn
-      Left = 40
-      Top = 144
+      Left = 48
+      Top = 112
       Width = 138
       Height = 25
       Caption = #34880#21387#35745#29366#24577#26174#31034
@@ -244,7 +247,7 @@ object frm_SysServer: Tfrm_SysServer
     Left = 288
     Top = 16
     Bitmap = {
-      494C010104000900400010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101040009004C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

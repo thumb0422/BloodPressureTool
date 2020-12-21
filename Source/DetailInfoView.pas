@@ -3,8 +3,11 @@ unit DetailInfoView;
 interface
 
 uses
-  System.Classes, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, System.SysUtils,System.Win.ScktComp,
-  DetailBPModel;
+  System.Classes, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, System.SysUtils, Vcl.Forms,
+  Vcl.Menus, Winapi.Windows, System.Win.ScktComp, DetailBPModel;
+
+type
+  TBPInfoStatus = (BPInfoStatusInit, BPInfoStatusConnecting, BPInfoStatusConnected, BPInfoStatusError);
 
 type
   TDetailInfoView = class(TPanel)
@@ -15,26 +18,92 @@ type
     descLabel: TLabel; //血压计名称
     statusLabel: TLabel; //血压计状态
     FTimer: TTimer;
-    FSocket:TClientSocket;
+    FPopMenu: TPopupMenu;
+    FSocket: TClientSocket;
     Fdata: TDetailBPModel;
+    FBPStatus: TBPInfoStatus;
     procedure Setdata(const Value: TDetailBPModel); //当前状态
     procedure qryStatus;
+    procedure initClientSocket;
+    procedure praseRspData;
   public
     property data: TDetailBPModel read Fdata write Setdata;
   protected
     procedure timerOnTimer(Sender: TObject);
+    procedure ClientSocketConnect(Sender: TObject; Socket: TCustomWinSocket);
+    procedure ClientSocketConnecting(Sender: TObject; Socket: TCustomWinSocket);
+    procedure ClientSocketDisconnect(Sender: TObject; Socket: TCustomWinSocket);
+    procedure ClientSocketError(Sender: TObject; Socket: TCustomWinSocket; ErrorEvent: TErrorEvent; var ErrorCode: Integer);
+    procedure ClientSocketRead(Sender: TObject; Socket: TCustomWinSocket);
+    procedure ClientSocketWrite(Sender: TObject; Socket: TCustomWinSocket);
+    procedure onPopStartClick(Sender: TObject);
+    procedure onPopStopClick(Sender: TObject);
   end;
 
 implementation
 
 uses
-  HDBManager, superobject;
+  HDBManager, superobject, TLog;
 { TDetailInfoView }
+
+procedure TDetailInfoView.ClientSocketConnect(Sender: TObject; Socket: TCustomWinSocket);
+begin
+
+end;
+
+procedure TDetailInfoView.ClientSocketConnecting(Sender: TObject; Socket: TCustomWinSocket);
+begin
+
+end;
+
+procedure TDetailInfoView.ClientSocketDisconnect(Sender: TObject; Socket: TCustomWinSocket);
+begin
+
+end;
+
+procedure TDetailInfoView.ClientSocketError(Sender: TObject; Socket: TCustomWinSocket; ErrorEvent: TErrorEvent; var ErrorCode: Integer);
+begin
+
+end;
+
+procedure TDetailInfoView.ClientSocketRead(Sender: TObject; Socket: TCustomWinSocket);
+var
+  i, L: Integer;
+  buff: array of Byte;
+begin
+  L := Socket.ReceiveLength;
+  if L <= 0 then
+    exit;
+  SetLength(buff, L);
+  i := Socket.ReceiveBuf(buff[0], L);
+  if i < L then
+  begin
+    //处理粘包
+  end
+  else
+  begin
+
+  end;
+end;
+
+procedure TDetailInfoView.ClientSocketWrite(Sender: TObject; Socket: TCustomWinSocket);
+begin
+
+end;
 
 constructor TDetailInfoView.Create(AOwner: TComponent);
 begin
   inherited;
 
+  FPopMenu := TPopupMenu.Create(Self);
+  with FPopMenu.Items do
+  begin
+    Add(NewItem('启动', 0, False, True, onPopStartClick, 0, 'MenuItem1'));
+    Add(NewLine);
+    Add(NewItem('关闭', 0, False, True, onPopStopClick, 0, 'MenuItem2'));
+  end;
+
+  Self.PopupMenu := FPopMenu;
   descLabel := TLabel.Create(Self);
   descLabel.Caption := '血压计-';
   descLabel.Alignment := taLeftJustify;
@@ -60,6 +129,7 @@ begin
   FTimer.OnTimer := timerOnTimer;
   FTimer.Enabled := False;
 
+  initClientSocket;
 end;
 
 destructor TDetailInfoView.Destroy;
@@ -70,7 +140,51 @@ begin
     statusLabel.Free;
   if Assigned(descLabel) then
     descLabel.Free;
+  if Assigned(FSocket) then
+  begin
+    FSocket.Close;
+    FSocket.Free;
+  end;
   inherited;
+end;
+
+procedure TDetailInfoView.initClientSocket;
+begin
+  FSocket := TClientSocket.Create(Self);
+  FSocket.Address := '172.16.26.129';
+  FSocket.Port := 9797;
+  FSocket.Active := False;
+  FSocket.OnConnect := ClientSocketConnect;
+  FSocket.OnConnecting := ClientSocketConnecting;
+  FSocket.OnDisconnect := ClientSocketDisconnect;
+  FSocket.OnError := ClientSocketError;
+  FSocket.OnRead := ClientSocketRead;
+  FSocket.OnWrite := ClientSocketWrite;
+end;
+
+procedure TDetailInfoView.onPopStartClick(Sender: TObject);
+begin
+  if Assigned(FTimer) then
+  begin
+    FTimer.Enabled := True;
+  end;
+end;
+
+procedure TDetailInfoView.onPopStopClick(Sender: TObject);
+begin
+  if Assigned(FTimer) then
+  begin
+    FTimer.Enabled := False;
+    if Assigned(FSocket) then
+    begin
+      FSocket.Close;
+    end;
+  end;
+end;
+
+procedure TDetailInfoView.praseRspData;
+begin
+
 end;
 
 procedure TDetailInfoView.qryStatus;
@@ -111,8 +225,35 @@ begin
 end;
 
 procedure TDetailInfoView.timerOnTimer(Sender: TObject);
+var
+  reqBuff: array of Byte;
 begin
-
+  if not Assigned(FSocket) then
+  begin
+    initClientSocket;
+  end;
+  if FSocket.Active = False then
+  begin
+    FSocket.Active := True;
+  end;
+//  FSocket.Socket.SendText('123456789');
+  //先检测血压计是否在线
+  SetLength(reqBuff,14);
+  reqBuff[0] := $FC;
+  reqBuff[1] := $0C;
+  reqBuff[2] := $02;
+  reqBuff[3] := $01;
+  reqBuff[4] := $4F;
+  reqBuff[5] := $08;
+  reqBuff[6] := $34;
+  reqBuff[7] := $2C;
+  reqBuff[8] := $22;
+  reqBuff[9] := $00;
+  reqBuff[10] := $4B;
+  reqBuff[11] := $12;
+  reqBuff[12] := $00;
+  reqBuff[13] := $03;
+  FSocket.Socket.SendBuf(reqBuff,SizeOf(reqBuff));
 end;
 
 end.

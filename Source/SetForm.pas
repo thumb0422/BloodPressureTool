@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Data.DB, Vcl.ExtCtrls,
   Vcl.DBGrids, Datasnap.DBClient,
-  Vcl.DBCtrls, Vcl.Mask, Vcl.Grids;
+  Vcl.DBCtrls, Vcl.Mask, Vcl.Grids, Vcl.Menus;
 
 type
   TTSetForm = class(TForm)
@@ -151,7 +151,8 @@ begin
   checkDataValid;
   if ClientDataSet1.Active = True then
   begin
-    ClientDataSet1.Post;
+    if ClientDataSet1.State = dsEdit then
+      ClientDataSet1.Post;
   end;
   sqlList := TStringList.Create;
   ClientDataSet1.DisableControls;

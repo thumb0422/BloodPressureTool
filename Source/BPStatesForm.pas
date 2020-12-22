@@ -80,8 +80,8 @@ begin
     end;
   end;
   dataCount := Length(bpInfoArray);
-  fWidth := 130;
-  fHeight := 120;
+  fWidth := 200;
+  fHeight := 80;
   fSeperateWidth := 20;
   fCol := Trunc((ScrollBox1.ClientWidth - fSeperateWidth) / (fWidth + fSeperateWidth)); //列数
   fRow := Ceil(dataCount / fCol);   //行数

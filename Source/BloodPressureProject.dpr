@@ -25,7 +25,8 @@ uses
   HDBManager in 'HDBManager.pas',
   DetailInfoView in 'DetailInfoView.pas',
   DetailBPModel in 'DetailBPModel.pas',
-  DataManager in 'DataManager.pas';
+  DataManager in 'DataManager.pas',
+  DetailDataForm in 'DetailDataForm.pas' {TDetailDataForm};
 
 {$R *.res}
 

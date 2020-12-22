@@ -38,12 +38,13 @@ type
     procedure ClientSocketWrite(Sender: TObject; Socket: TCustomWinSocket);
     procedure onPopStartClick(Sender: TObject);
     procedure onPopStopClick(Sender: TObject);
+    procedure onPopQryClick(Sender: TObject);
   end;
 
 implementation
 
 uses
-  HDBManager, superobject, TLog;
+  HDBManager, superobject, TLog,DetailDataForm;
 { TDetailInfoView }
 
 procedure TDetailInfoView.ClientSocketConnect(Sender: TObject; Socket: TCustomWinSocket);
@@ -101,6 +102,8 @@ begin
     Add(NewItem('启动', 0, False, True, onPopStartClick, 0, 'MenuItem1'));
     Add(NewLine);
     Add(NewItem('关闭', 0, False, True, onPopStopClick, 0, 'MenuItem2'));
+    Add(NewLine);
+    Add(NewItem('查看', 0, False, True, onPopQryClick, 0, 'MenuItem3'));
   end;
 
   Self.PopupMenu := FPopMenu;
@@ -160,6 +163,16 @@ begin
   FSocket.OnError := ClientSocketError;
   FSocket.OnRead := ClientSocketRead;
   FSocket.OnWrite := ClientSocketWrite;
+end;
+
+procedure TDetailInfoView.onPopQryClick(Sender: TObject);
+var
+  sForm: TTDetailDataForm;
+begin
+  sForm := TTDetailDataForm.Create(Application);
+  sForm.bpModel := data;
+  sForm.ShowModal;
+  sForm.Free;
 end;
 
 procedure TDetailInfoView.onPopStartClick(Sender: TObject);

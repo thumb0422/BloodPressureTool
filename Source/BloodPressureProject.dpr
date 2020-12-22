@@ -26,7 +26,8 @@ uses
   DetailInfoView in 'DetailInfoView.pas',
   DetailBPModel in 'DetailBPModel.pas',
   DataManager in 'DataManager.pas',
-  DetailDataForm in 'DetailDataForm.pas' {TDetailDataForm};
+  DetailDataForm in 'DetailDataForm.pas' {TDetailDataForm},
+  BPStatusModel in 'BPStatusModel.pas';
 
 {$R *.res}
 

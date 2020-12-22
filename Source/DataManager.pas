@@ -40,7 +40,9 @@ type
   end;
 
 implementation
-uses TLog;
+
+uses
+  TLog;
 { TDataManager }
 
 procedure TDataManager.bpOnLine(mac: string);
@@ -53,7 +55,7 @@ begin
   end;
   if FSocket.Active = False then
   begin
-    FSocket.Active := True;
+    FSocket.Open;
   end;
   //先检测血压计是否在线
   SetLength(reqBuff, 14);
@@ -84,7 +86,17 @@ begin
   end;
   if FSocket.Active = False then
   begin
-    FSocket.Active := True;
+    try
+      FSocket.Open;
+    except
+      on e: Exception do
+      begin
+        TDLog.Instance.writeLog(mac + 'open errro');
+        Abort
+      end;
+
+    end;
+
   end;
   //发送数据
   {
@@ -129,8 +141,10 @@ begin
 end;
 
 procedure TDataManager.ClientSocketRead(Sender: TObject; Socket: TCustomWinSocket);
+var rspStr:string;
 begin
-
+  rspStr := Socket.ReceiveText;
+  TDLog.Instance.writeLog('rsp :' +rspStr);
 end;
 
 procedure TDataManager.ClientSocketWrite(Sender: TObject; Socket: TCustomWinSocket);
@@ -186,7 +200,7 @@ end;
 procedure TDataManager.initTimer;
 begin
   FTimer := TTimer.Create(nil);
-  FTimer.Interval := 5 * 1000;//5秒检测一次
+  FTimer.Interval := 5 * 1000; //5秒检测一次
   FTimer.OnTimer := timerOnTimer;
   FTimer.Enabled := False;
 end;
@@ -200,6 +214,7 @@ procedure TDataManager.start(mac: string);
 var
   bpStatusModel: TBPStatusModel;
 begin
+  bpSend(mac);
   bpStatusModel := TBPStatusModel.Create;
   bpStatusModel.MMac := mac;
   bpStatusModel.lastTime := Now();
@@ -223,7 +238,7 @@ begin
     bpStatusModel := fQueue.Items[mac];
     timeDiff := SecondsBetween(Now(), bpStatusModel.lastTime);
     TDLog.Instance.writeLog(timeDiff.ToString);
-    if timeDiff < 60 * 10 then // 10分钟之内不处理
+    if timeDiff < 10 then // 10分钟之内不处理
     begin
 
     end
@@ -231,6 +246,9 @@ begin
     begin
       //发送数据
       bpSend(mac);
+      //reset status
+      bpStatusModel.lastTime := Now();
+      fQueue.AddOrSetValue(mac, bpStatusModel);
     end;
   end;
 end;

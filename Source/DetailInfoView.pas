@@ -134,7 +134,7 @@ end;
 procedure TDetailInfoView.Setdata(const Value: TDetailBPModel);
 begin
   Fdata := Value;
-  descLabel.Caption := 'ÑªÑ¹¼Æ-' + Fdata.MDesc;
+  descLabel.Caption := 'ÑªÑ¹¼Æ-' + Fdata.MNo;
   qryStatus;
 end;
 

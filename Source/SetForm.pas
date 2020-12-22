@@ -5,8 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Data.DB, Vcl.ExtCtrls,
-  Vcl.DBGrids, Datasnap.DBClient,
-  Vcl.DBCtrls, Vcl.Mask, Vcl.Grids, Vcl.Menus;
+  Vcl.DBGrids, Datasnap.DBClient, Vcl.DBCtrls, Vcl.Mask, Vcl.Grids, Vcl.Menus;
 
 type
   TTSetForm = class(TForm)
@@ -35,9 +34,6 @@ type
     procedure delBtnClick(Sender: TObject);
   private
     { Private declarations }
-//    function praseModelToDataSet
-    procedure generateDatas;
-    procedure checkDataValid;
     procedure QryDatas;
   public
     { Public declarations }
@@ -74,41 +70,13 @@ end;
 
 procedure TTSetForm.delBtnClick(Sender: TObject);
 begin
-//del
   ClientDataSet1.Delete;
 end;
 
 procedure TTSetForm.FormCreate(Sender: TObject);
 begin
   self.Caption := '血压计信息录入';
-//  Self.generateDatas;
   QryDatas;
-end;
-
-procedure TTSetForm.generateDatas;
-var
-  I: Integer;
-begin
-  ClientDataSet1.CreateDataSet;
-  ClientDataSet1.DisableControls;
-  for I := 0 to 10 do
-  begin
-    with ClientDataSet1 do
-    begin
-      Append;
-      ClientDataSet1.FieldByName('MNo').AsString := IntToStr(I * 100 + 1);
-      ClientDataSet1.FieldByName('MMac').AsString := 'XXXXXXXX';
-      ClientDataSet1.FieldByName('MGroup').AsString := '192.168.1.' + IntToStr(I * 3);
-      ClientDataSet1.FieldByName('MDesc').AsString := '测试' + IntToStr(I * 4);
-      Post;
-    end;
-
-  end;
-  self.ClientDataSet1.EnableControls;
-  if ClientDataSet1.Active = False then
-  begin
-    ClientDataSet1.Open;
-  end;
 end;
 
 procedure TTSetForm.QryDatas;
@@ -147,31 +115,40 @@ var
   sqlList: TStringList;
   I: Integer;
 begin
-  //todo
-  checkDataValid;
-  if ClientDataSet1.Active = True then
+  if Trim(groupEdit.Text) = '' then
   begin
-    if ClientDataSet1.State = dsEdit then
-      ClientDataSet1.Post;
-  end;
-  sqlList := TStringList.Create;
-  ClientDataSet1.DisableControls;
-  ClientDataSet1.First;
-  while not ClientDataSet1.Eof do
+    ShowMessage('IP 不能为空');
+  end
+  else if Trim(noEdit.Text) = '' then
   begin
-    sql := Format('Delete from T_M_Infos where 1=1 and MMac = %s', [QuotedStr(ClientDataSet1.FieldByName('MMac').AsString)]);
+    ShowMessage('编号 不能为空');
+  end
+  else if Trim(macEdit.Text) = '' then
+  begin
+    ShowMessage('mac 不能为空');
+  end
+  else
+  begin
+    if ClientDataSet1.Active = True then
+    begin
+      if ClientDataSet1.State = dsEdit then
+        ClientDataSet1.Post;
+    end;
+    sqlList := TStringList.Create;
+    sql := 'Delete from T_M_Infos where 1=1 ';
     sqlList.Add(sql);
-    sql := Format('Insert Into T_M_Infos (MNo,MMac,MGroup,MDesc) Values (%s,%S,%s,%s)', [QuotedStr(ClientDataSet1.FieldByName('MNo').AsString), QuotedStr(ClientDataSet1.FieldByName('MMac').AsString), QuotedStr(ClientDataSet1.FieldByName('MGroup').AsString), QuotedStr(ClientDataSet1.FieldByName('MDesc').AsString)]);
-    sqlList.Add(sql);
-    ClientDataSet1.Next;
+    ClientDataSet1.DisableControls;
+    ClientDataSet1.First;
+    while not ClientDataSet1.Eof do
+    begin
+      sql := Format('Insert Into T_M_Infos (MNo,MMac,MGroup,MDesc) Values (%s,%S,%s,%s)', [QuotedStr(ClientDataSet1.FieldByName('MNo').AsString), QuotedStr(ClientDataSet1.FieldByName('MMac').AsString), QuotedStr(ClientDataSet1.FieldByName('MGroup').AsString), QuotedStr(ClientDataSet1.FieldByName('MDesc').AsString)]);
+      sqlList.Add(sql);
+      ClientDataSet1.Next;
+    end;
+    ClientDataSet1.EnableControls;
+    TDBManager.Instance.execSql(sqlList);
+    QryDatas;
   end;
-  ClientDataSet1.EnableControls;
-  TDBManager.Instance.execSql(sqlList);
-  QryDatas;
-end;
-
-procedure TTSetForm.checkDataValid;
-begin
 
 end;
 

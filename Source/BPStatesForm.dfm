@@ -16,47 +16,13 @@ object TBPStatesForm: TTBPStatesForm
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
-  object Panel1: TPanel
-    Left = 0
-    Top = 559
-    Width = 800
-    Height = 41
-    Align = alBottom
-    TabOrder = 0
-    object startBtn: TBitBtn
-      Left = 200
-      Top = 6
-      Width = 75
-      Height = 25
-      Caption = #21551#21160'(&S)'
-      TabOrder = 0
-      OnClick = startBtnClick
-    end
-    object stopBtn: TBitBtn
-      Left = 325
-      Top = 6
-      Width = 75
-      Height = 25
-      Caption = #20572#27490'(&E)'
-      TabOrder = 1
-      OnClick = stopBtnClick
-    end
-    object refreshBtn: TBitBtn
-      Left = 450
-      Top = 6
-      Width = 75
-      Height = 25
-      Caption = #21047#26032'(&R)'
-      TabOrder = 2
-      OnClick = refreshBtnClick
-    end
-  end
   object ScrollBox1: TScrollBox
     Left = 0
     Top = 0
     Width = 800
-    Height = 559
+    Height = 600
     Align = alClient
-    TabOrder = 1
+    TabOrder = 0
+    ExplicitHeight = 559
   end
 end

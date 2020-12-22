@@ -2,3 +2,4 @@
 out/*.exe
 out/*.db
 Source/__history
+out/*.log

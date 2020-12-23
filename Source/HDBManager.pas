@@ -34,59 +34,10 @@ implementation
 constructor TDBManager.Create;
 var
   slDBpath: string;
-//  sSQL: String;
-//  ts: TStringStream;
-//  sltb: TSQLIteTable;
 begin
   slDBpath := ExtractFilePath(paramstr(0)) + 'db.db';
   fDB := TSQLiteDatabase.Create(slDBpath);
-
-  {
-  //for test
-  try
-    if fDB.TableExists('testTable') then
-    begin
-      sSQL := 'DROP TABLE testtable';
-      fDB.execSql(sSQL);
-    end;
-
-    sSQL := 'CREATE TABLE testtable ([ID] INTEGER PRIMARY KEY,[OtherID] INTEGER NULL,';
-    sSQL := sSQL +
-      '[Name] VARCHAR (255),[Number] FLOAT, [notes] BLOB, [picture] BLOB COLLATE NOCASE);';
-
-    fDB.execSql(sSQL);
-
-    fDB.execSql('CREATE INDEX TestTableName ON [testtable]([Name]);');
-
-    // begin a transaction
-    fDB.BeginTransaction;
-
-    sSQL := 'INSERT INTO testtable(Name,OtherID,Number) VALUES ("Some Name",4,587.6594);';
-    // do the insert
-    fDB.execSql(sSQL);
-
-    sSQL := 'INSERT INTO testtable(Name,OtherID,Number,Notes) VALUES ("Another Name",12,4758.3265,"More notes");';
-    // do the insert
-    fDB.execSql(sSQL);
-
-    // end the transaction
-    fDB.Commit;
-
-    // add the notes using a parameter
-    ts := TStringStream.Create('Here are some notes with a unicode smiley: ' +
-      char($263A), TEncoding.UTF8);
-    try
-      // insert the text into the db
-      fDB.UpdateBlob('UPDATE testtable set notes = ? WHERE OtherID = 4', ts);
-    finally
-      ts.Free;
-    end;
-    if sltb <> nil then
-      sltb.Free;
-  finally
-
-  end;
-}
+  execSqlByFromLocalFile('');
 end;
 
 destructor TDBManager.Destroy;
@@ -119,11 +70,11 @@ var sourceScript,destScript:TStringList;
 begin
   if filePath = '' then
   begin
-    sqlPath := ExtractFilePath(paramstr(0)) + 'sql/himsSoft.sql';
+    sqlPath := ExtractFilePath(paramstr(0)) + 'sql.sql';
   end
   else
   begin
-    sqlPath := ExtractFilePath(paramstr(0)) + 'sql/'+ filePath;
+    sqlPath := ExtractFilePath(paramstr(0)) + filePath;
   end;
   if FileExists(sqlPath) then
   begin

@@ -3,7 +3,7 @@ unit DataManager;
 interface
 
 uses
-  System.SysUtils, System.Win.ScktComp, Generics.Collections, Vcl.ExtCtrls,
+  System.SysUtils,System.Classes,Winapi.Windows, System.Win.ScktComp, Generics.Collections, Vcl.ExtCtrls,
   DateUtils, BPStatusModel;
 
 type
@@ -46,18 +46,61 @@ uses
 { TDataManager }
 
 procedure TDataManager.bpOnLine(mac: string);
+//var
+//  reqBuff: array of char;
+//begin
+//  //先检测血压计是否在线
+//  SetLength(reqBuff, 14);
+//  reqBuff[0] := $FC;
+//  reqBuff[1] := $0C;
+//  reqBuff[2] := $02;
+//  reqBuff[3] := $01;
+//  reqBuff[4] := $4F;
+//  reqBuff[5] := $08;
+//  reqBuff[6] := $34;
+//  reqBuff[7] := $2C;
+//  reqBuff[8] := $22;
+//  reqBuff[9] := $00;
+//  reqBuff[10] := $4B;
+//  reqBuff[11] := $12;
+//  reqBuff[12] := $00;
+//  reqBuff[13] := $03;
+//  FSocket.Socket.SendBuf(reqBuff, SizeOf(reqBuff));
+//end
+
+//var
+//    sourceData,strData: string;
+//    reqData: array of byte;
+//    iLen:integer;
+//begin
+//    sourceData:='FC 0C 02 01 4F 08 34 2C 22 00 4B 12 00 03';
+//    strData:=StringReplace(sourceData,' ','',[rfReplaceAll]);
+//    ZeroMemory(@reqData[0],Length(sourceData));
+//    iLen:=HexToBin(pChar(strData),pchar(@reqData[0]),Length(sourceData));
+//    FSocket.Socket.SendBuf(reqData, iLen+1024);
+//end;
+//begin
+//  FSocket.Socket.SendText('123456789');
+//end;
+var
+sourceData:string;
+reqBuff: array of byte;
+i :Integer;
+begin
+  sourceData:='FC 0C 02 01 4F 08 34 2C 22 00 4B 12 00 03';
+  sourceData := StringReplace(sourceData,' ','',[rfReplaceAll]);
+  setlength(reqBuff, Length(sourceData) div 2);
+  for i :=0 to (Length(sourceData) div 2)-1 do
+    reqBuff[i] := StrToInt('$' + copy(sourceData, i*2+1, 2));
+  FSocket.Socket.SendBuf(reqBuff, SizeOf(reqBuff));
+end;
+
+procedure TDataManager.bpSend(mac: string);
 var
   reqBuff: array of Byte;
 begin
-  if not Assigned(FSocket) then
-  begin
-    initSocket;
-  end;
-  if FSocket.Active = False then
-  begin
-    FSocket.Open;
-  end;
-  //先检测血压计是否在线
+  //发送数据
+//  {
   SetLength(reqBuff, 14);
   reqBuff[0] := $FC;
   reqBuff[1] := $0C;
@@ -74,50 +117,8 @@ begin
   reqBuff[12] := $00;
   reqBuff[13] := $03;
   FSocket.Socket.SendBuf(reqBuff, SizeOf(reqBuff));
-end;
-
-procedure TDataManager.bpSend(mac: string);
-var
-  reqBuff: array of Byte;
-begin
-  if not Assigned(FSocket) then
-  begin
-    initSocket;
-  end;
-  if FSocket.Active = False then
-  begin
-    try
-      FSocket.Open;
-    except
-      on e: Exception do
-      begin
-        TDLog.Instance.writeLog(mac + 'open errro');
-        Abort
-      end;
-
-    end;
-
-  end;
-  //发送数据
-  {
-  SetLength(reqBuff, 14);
-  reqBuff[0] := $FC;
-  reqBuff[1] := $0C;
-  reqBuff[2] := $02;
-  reqBuff[3] := $01;
-  reqBuff[4] := $4D;
-  reqBuff[5] := $08;
-  reqBuff[6] := $34;
-  reqBuff[7] := $2C;
-  reqBuff[8] := $22;
-  reqBuff[9] := $00;
-  reqBuff[10] := $4B;
-  reqBuff[11] := $12;
-  reqBuff[12] := $00;
-  reqBuff[13] := $03;
-  FSocket.Socket.SendBuf(reqBuff, SizeOf(reqBuff));
-  }
-  FSocket.Socket.SendText(mac);
+//  }
+//  FSocket.Socket.SendText(mac);
 end;
 
 procedure TDataManager.ClientSocketConnect(Sender: TObject; Socket: TCustomWinSocket);
@@ -142,8 +143,12 @@ end;
 
 procedure TDataManager.ClientSocketRead(Sender: TObject; Socket: TCustomWinSocket);
 var rspStr:string;
+  rspLength:Integer;
+  rspBuff :array of Char;
 begin
   rspStr := Socket.ReceiveText;
+  rspLength := Socket.ReceiveLength;
+  Socket.ReceiveBuf(rspBuff,rspLength);
   TDLog.Instance.writeLog('rsp :' +rspStr);
 end;
 
@@ -157,7 +162,6 @@ begin
   fQueue := TDictionary<string, TBPStatusModel>.Create();
   initSocket;
   initTimer;
-  FSocket.Active := True;
   FTimer.Enabled := True;
 end;
 
@@ -195,6 +199,13 @@ begin
   FSocket.OnError := ClientSocketError;
   FSocket.OnRead := ClientSocketRead;
   FSocket.OnWrite := ClientSocketWrite;
+  try
+    FSocket.Open;
+  except on E: Exception do
+    begin
+      TDLog.Instance.writeLog('打开服务失败');
+    end;
+  end;
 end;
 
 procedure TDataManager.initTimer;
@@ -218,7 +229,7 @@ begin
   bpStatusModel := TBPStatusModel.Create;
   bpStatusModel.MMac := mac;
   bpStatusModel.lastTime := Now();
-  fQueue.Add(mac, bpStatusModel);
+  fQueue.AddOrSetValue(mac, bpStatusModel);
 end;
 
 procedure TDataManager.stop(mac: string);
@@ -232,6 +243,7 @@ var
   bpStatusModel: TBPStatusModel;
   mac: string;
   timeDiff: Double;
+  isOpen :Boolean;
 begin
   for mac in fQueue.Keys do
   begin
@@ -244,8 +256,10 @@ begin
     end
     else
     begin
+      isOpen := FSocket.Active;
       //发送数据
-      bpSend(mac);
+//      bpSend(mac);
+      bpOnLine(mac);
       //reset status
       bpStatusModel.lastTime := Now();
       fQueue.AddOrSetValue(mac, bpStatusModel);

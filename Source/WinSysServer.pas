@@ -29,14 +29,6 @@ type
     il1: TImageList;
     setBtn: TBitBtn;
     mechineStatesBtn: TBitBtn;
-    MainMenu1: TMainMenu;
-    O2: TMenuItem;
-    O1: TMenuItem;
-    N1: TMenuItem;
-    L1: TMenuItem;
-    H1: TMenuItem;
-    A1: TMenuItem;
-    B1: TMenuItem;
     act_User: TAction;
     act_bp: TAction;
     procedure FormCreate(Sender: TObject);
@@ -470,7 +462,7 @@ end;
 procedure Tfrm_SysServer.act_SetupExecute(Sender: TObject);
 begin
   {œ‘ æ…Ë÷√¥∞ÃÂ}
-  DMWinServerSetup;
+  DMWinServerSet;
 end;
 
 procedure Tfrm_SysServer.act_LogExecute(Sender: TObject);

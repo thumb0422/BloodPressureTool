@@ -4,15 +4,14 @@ object frm_SysServer: Tfrm_SysServer
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = #34880#21387#35745#21161#25163
-  ClientHeight = 146
-  ClientWidth = 343
+  ClientHeight = 170
+  ClientWidth = 355
   Color = clBtnFace
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
   Font.Name = #23435#20307
   Font.Style = []
-  Menu = MainMenu1
   OldCreateOrder = True
   Position = poScreenCenter
   OnCloseQuery = FormCloseQuery
@@ -23,11 +22,12 @@ object frm_SysServer: Tfrm_SysServer
   object grp1: TGroupBox
     Left = 0
     Top = 0
-    Width = 343
-    Height = 146
+    Width = 355
+    Height = 170
     Align = alClient
     TabOrder = 0
-    ExplicitHeight = 133
+    ExplicitWidth = 356
+    ExplicitHeight = 136
     object lbl_NowTime: TLabel
       Left = 16
       Top = 48
@@ -176,7 +176,7 @@ object frm_SysServer: Tfrm_SysServer
     object setBtn: TBitBtn
       Left = 208
       Top = 112
-      Width = 75
+      Width = 120
       Height = 25
       Caption = #35774#32622
       TabOrder = 2
@@ -185,9 +185,9 @@ object frm_SysServer: Tfrm_SysServer
     object mechineStatesBtn: TBitBtn
       Left = 48
       Top = 112
-      Width = 138
+      Width = 120
       Height = 25
-      Caption = #34880#21387#35745#29366#24577#26174#31034
+      Caption = #29366#24577#26597#35810
       TabOrder = 3
       OnClick = mechineStatesBtnClick
     end
@@ -247,7 +247,7 @@ object frm_SysServer: Tfrm_SysServer
     Left = 288
     Top = 16
     Bitmap = {
-      494C0101040009004C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010104000900540010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -517,32 +517,5 @@ object frm_SysServer: Tfrm_SysServer
       C0070001C0070001E00F0001E00F0001E00F8003E00F8003F01FC007F01FC007
       F01FE00FF01FE00FFC7FF01FFC7FF01F00000000000000000000000000000000
       000000000000}
-  end
-  object MainMenu1: TMainMenu
-    Left = 144
-    Top = 16
-    object O2: TMenuItem
-      Caption = #31995#32479'(&X)'
-      object O1: TMenuItem
-        Caption = #35774#32622'(&O)'
-        OnClick = act_SetupExecute
-      end
-      object N1: TMenuItem
-        Caption = '-'
-      end
-      object L1: TMenuItem
-        Caption = #36816#34892#26085#24535'(&L)'
-        OnClick = act_LogExecute
-      end
-    end
-    object H1: TMenuItem
-      Caption = #35774#32622'(&Q)'
-      object A1: TMenuItem
-        Action = act_User
-      end
-      object B1: TMenuItem
-        Action = act_bp
-      end
-    end
   end
 end

@@ -9,7 +9,6 @@ uses
   DMWinServer in 'DMWinServer.pas' {dmWinSysServer: TDataModule},
   USysServer in 'USysServer.pas',
   TLog in 'TLog.pas',
-  TDBManager in 'TDBManager.pas',
   ComDefine in 'ComDefine.pas',
   SetForm in 'SetForm.pas' {TSetForm},
   UserForm in 'UserForm.pas' {TUserForm},

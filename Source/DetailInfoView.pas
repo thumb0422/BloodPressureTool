@@ -61,15 +61,15 @@ begin
   descLabel.Transparent := True;
   descLabel.Parent := Self;
 
-  statusLabel := TLabel.Create(Self);
-  statusLabel.Caption := 'Î´Æô¶¯';
-  statusLabel.Alignment := taCenter;
-  statusLabel.Left := 5;
-  statusLabel.Top := 30;
-  statusLabel.Width := 120;
-  statusLabel.Height := 20;
-  statusLabel.Transparent := True;
-  statusLabel.Parent := Self;
+//  statusLabel := TLabel.Create(Self);
+//  statusLabel.Caption := 'Î´Æô¶¯';
+//  statusLabel.Alignment := taCenter;
+//  statusLabel.Left := 5;
+//  statusLabel.Top := 30;
+//  statusLabel.Width := 120;
+//  statusLabel.Height := 20;
+//  statusLabel.Transparent := True;
+//  statusLabel.Parent := Self;
 end;
 
 destructor TDetailInfoView.Destroy;
@@ -131,7 +131,7 @@ procedure TDetailInfoView.Setdata(const Value: TDetailBPModel);
 begin
   Fdata := Value;
   descLabel.Caption := 'ÑªÑ¹¼Æ-' + Fdata.MNo;
-  qryStatus;
+//  qryStatus;
 end;
 
 end.

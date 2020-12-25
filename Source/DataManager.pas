@@ -36,6 +36,7 @@ type
   public
     procedure start(macModel: TDetailBPModel);
     procedure stop(macModel: TDetailBPModel);
+    procedure stopAll;
   private
     procedure bpOnLine(macModel: TDetailBPModel); //是否在线
     procedure bpSend(macModel: TDetailBPModel); //发送开始测量命令
@@ -192,11 +193,12 @@ begin
       end
       else if LowerCase(preStr) = '44' then
       begin
+        iPos := iPos + Length(macTmp);
         rspMessage := '测量数据返回';
-        rspSBP := '120';
-        rspDBP := '091';
-        rspHR := '094';
-        sql := Format('insert into T_M_Datas (MMac,MSBP,MDBP,MHR) values (%s,%s,%s,%s)', [QuotedStr(mac), QuotedStr(rspSBP), QuotedStr(rspDBP), QuotedStr(rspHR)]);
+        rspSBP := IntToStr((StrToInt(Copy(rspStrTmp,iPos,2)) - 30))+IntToStr((StrToInt(Copy(rspStrTmp,iPos+2,2)) - 30))+IntToStr((StrToInt(Copy(rspStrTmp,iPos+4,2)) - 30));
+        rspDBP := IntToStr((StrToInt(Copy(rspStrTmp,iPos+6,2)) - 30))+IntToStr((StrToInt(Copy(rspStrTmp,iPos+8,2)) - 30))+IntToStr((StrToInt(Copy(rspStrTmp,iPos+10,2)) - 30));
+        rspHR := IntToStr((StrToInt(Copy(rspStrTmp,iPos+12,2)) - 30))+IntToStr((StrToInt(Copy(rspStrTmp,iPos+14,2)) - 30))+IntToStr((StrToInt(Copy(rspStrTmp,iPos+16,2)) - 30));
+        sql := Format('insert into T_M_Datas (MMac,MSBP,MDBP,MHR) values (%s,%s,%s,%s)', [QuotedStr(mac), QuotedStr(IntToStr(StrToInt(rspSBP))), QuotedStr(IntToStr(StrToInt(rspDBP))), QuotedStr(IntToStr(StrToInt(rspHR)))]);
         sqlList.Add(sql);
       end
       else if LowerCase(preStr) = '53' then
@@ -378,7 +380,7 @@ var
   sql: string;
   sqlList: TStringList;
 begin
-  fQueue.Remove(macModel.MMac);
+   fQueue.Remove(macModel.MMac);
   if fQueue.Keys.Count = 1 then
   begin
     fQueue.Clear;
@@ -390,13 +392,25 @@ begin
   sqlList := TStringList.Create;
   sql := Format('Delete from T_M_infos_Status where 1=1 and MMac = %s', [QuotedStr(macModel.MMac)]);
   sqlList.Add(sql);
-  sql := Format('insert into T_M_infos_Status (MMac,MStatus) values (%s,1)', [QuotedStr(macModel.MMac)]);
-  sqlList.Add(sql);
+//  sql := Format('insert into T_M_infos_Status (MMac,MStatus) values (%s,1)', [QuotedStr(macModel.MMac)]);
+//  sqlList.Add(sql);
   if sqlList.Count > 0 then
   begin
     TDBManager.Instance.execSql(sqlList);
   end;
 end;
+
+procedure TDataManager.stopAll;
+var
+  macModel: TDetailBPModel;
+  mac: string;
+begin
+  for mac in fQueue.Keys do
+  begin
+    macModel := fQueue.Items[mac];
+    stop(macModel);
+    end;
+  end;
 
 procedure TDataManager.timerOnTimer(Sender: TObject);
 var
@@ -410,7 +424,7 @@ begin
   begin
     macModel := fQueue.Items[mac];
     timeDiff := SecondsBetween(Now(), macModel.lastTime);
-    if timeDiff < 15 then // todo 15分钟之内不处理
+    if timeDiff < 20 then // todo 15分钟之内不处理
     begin
 
     end

@@ -24,8 +24,6 @@ object TDetailDataForm: TTDetailDataForm
     Height = 50
     Align = alBottom
     TabOrder = 0
-    ExplicitTop = 490
-    ExplicitWidth = 909
     object refreshBtn: TButton
       Left = 56
       Top = 16
@@ -95,6 +93,10 @@ object TDetailDataForm: TTDetailDataForm
     end
     object ClientDataSet1MHR: TStringField
       FieldName = 'MHR'
+    end
+    object ClientDataSet1MMac: TStringField
+      FieldName = 'MMac'
+      Size = 50
     end
   end
   object DataSource1: TDataSource

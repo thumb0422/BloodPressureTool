@@ -18,6 +18,7 @@ type
     ClientDataSet1MSBP: TStringField;
     ClientDataSet1MDBP: TStringField;
     ClientDataSet1MHR: TStringField;
+    ClientDataSet1MMac: TStringField;
     procedure refreshBtnClick(Sender: TObject);
     procedure closeBtnClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);

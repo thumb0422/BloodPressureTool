@@ -33,7 +33,7 @@ type
 implementation
 
 uses
-  HDBManager, superobject, TLog,DetailDataForm,DataManager;
+  HDBManager, superobject, TLog, DetailDataForm, DataManager;
 { TDetailInfoView }
 
 constructor TDetailInfoView.Create(AOwner: TComponent);
@@ -93,12 +93,12 @@ end;
 
 procedure TDetailInfoView.onPopStartClick(Sender: TObject);
 begin
-  TDataManager.Instance.start(data.MMac);
+  TDataManager.Instance.start(data);
 end;
 
 procedure TDetailInfoView.onPopStopClick(Sender: TObject);
 begin
-  TDataManager.Instance.stop(data.MMac);
+  TDataManager.Instance.stop(data);
 end;
 
 procedure TDetailInfoView.qryStatus;
@@ -117,17 +117,13 @@ begin
       status := subData.S['MStatus'];
     end;
   end;
-  if status = '0' then
-  begin
-    statusLabel.Caption := '未启动';
-  end
-  else if status = '1' then
+  if status = '1' then
   begin
     statusLabel.Caption := '已启动';
   end
   else
   begin
-    statusLabel.Caption := '启动中';
+    statusLabel.Caption := '未启动';
   end;
 end;
 

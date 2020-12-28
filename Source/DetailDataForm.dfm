@@ -24,7 +24,6 @@ object TDetailDataForm: TTDetailDataForm
     Height = 50
     Align = alBottom
     TabOrder = 0
-    ExplicitWidth = 331
     object refreshBtn: TButton
       Left = 64
       Top = 16
@@ -67,6 +66,7 @@ object TDetailDataForm: TTDetailDataForm
     TitleFont.Style = []
     Columns = <
       item
+        Alignment = taRightJustify
         Expanded = False
         FieldName = 'MDBP'
         Title.Caption = 'DBP'
@@ -74,6 +74,7 @@ object TDetailDataForm: TTDetailDataForm
         Visible = True
       end
       item
+        Alignment = taRightJustify
         Expanded = False
         FieldName = 'MSBP'
         Title.Caption = 'SBP'
@@ -81,6 +82,7 @@ object TDetailDataForm: TTDetailDataForm
         Visible = True
       end
       item
+        Alignment = taRightJustify
         Expanded = False
         FieldName = 'MHR'
         Title.Caption = 'HR'

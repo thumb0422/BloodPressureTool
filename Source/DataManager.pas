@@ -30,6 +30,7 @@ type
     procedure initSocket(ip: string);
     function getBPStatus(mac: string): string;
     function getIPSbyMac(macModel: TDetailBPModel): string;
+    procedure praseRspData(rsp: string);
   public
     procedure start(macModel: TDetailBPModel);
     procedure stop(macModel: TDetailBPModel);
@@ -51,7 +52,7 @@ var
   sourceData, strData: string;
   iLen: integer;
   tmpSocket: TClientSocket;
-  reqMemory:TMemoryStream;
+  reqMemory: TMemoryStream;
 begin
   tmpSocket := fSocketQueue.Items[macModel.MGroup];
   if Assigned(tmpSocket) and tmpSocket.Active then
@@ -60,7 +61,7 @@ begin
     strData := StringReplace(sourceData, ' ', '', [rfReplaceAll]);
     reqMemory := TMemoryStream.Create;
     reqMemory.Size := Length(strData) div 2;
-    iLen := HexToBin(PChar(strData),reqMemory.Memory,reqMemory.Size);
+    iLen := HexToBin(PChar(strData), reqMemory.Memory, reqMemory.Size);
     tmpSocket.Socket.SendStream(reqMemory);
     TDLog.Instance.writeLog('Req:mac=' + macModel.MMac + ',sendBuff =' + sourceData);
   end
@@ -75,7 +76,7 @@ var
   sourceData, strData: string;
   iLen: integer;
   tmpSocket: TClientSocket;
-  reqMemory:TMemoryStream;
+  reqMemory: TMemoryStream;
 begin
   tmpSocket := fSocketQueue.Items[macModel.MGroup];
   if Assigned(tmpSocket) and tmpSocket.Active then
@@ -84,7 +85,7 @@ begin
     strData := StringReplace(sourceData, ' ', '', [rfReplaceAll]);
     reqMemory := TMemoryStream.Create;
     reqMemory.Size := Length(strData) div 2;
-    iLen := HexToBin(PChar(strData),reqMemory.Memory,reqMemory.Size);
+    iLen := HexToBin(PChar(strData), reqMemory.Memory, reqMemory.Size);
     tmpSocket.Socket.SendStream(reqMemory);
     TDLog.Instance.writeLog('Req:mac=' + macModel.MMac + ',sendBuff =' + sourceData);
   end
@@ -99,7 +100,7 @@ var
   sourceData, strData: string;
   iLen: integer;
   tmpSocket: TClientSocket;
-  reqMemory:TMemoryStream;
+  reqMemory: TMemoryStream;
 begin
   tmpSocket := fSocketQueue.Items[macModel.MGroup];
   if Assigned(tmpSocket) and tmpSocket.Active then
@@ -108,7 +109,7 @@ begin
     strData := StringReplace(sourceData, ' ', '', [rfReplaceAll]);
     reqMemory := TMemoryStream.Create;
     reqMemory.Size := Length(strData) div 2;
-    iLen := HexToBin(PChar(strData),reqMemory.Memory,reqMemory.Size);
+    iLen := HexToBin(PChar(strData), reqMemory.Memory, reqMemory.Size);
     tmpSocket.Socket.SendStream(reqMemory);
     TDLog.Instance.writeLog('Req:mac=' + macModel.MMac + ',sendBuff =' + sourceData);
   end
@@ -183,15 +184,7 @@ var
   iLength: Integer;
   rspStr: string;
   I: Integer;
-  mac: string;
   rspStrTmp, macTmp: string;
-  iPos: Integer;
-  preStr: string; //返回数据的前一个字符来判断是什么命令 4F=是否在线 4D=开始测量  44=测量的数据 53=自动测量的时间间隔
-  rspMessage: string;
-  sql: string;
-  sqlList: TStringList;
-  rspSBP, rspDBP, rspHR: string;
-  macModel: TDetailBPModel;
 begin
   iLength := Socket.ReceiveLength;
   if (iLength > 0) then
@@ -205,58 +198,7 @@ begin
     rspStr := rspStr + ' ' + IntToHex(rspBuff[I]);
   end;
   rspStrTmp := StringReplace(LowerCase(rspStr), ' ', '', [rfReplaceAll]);
-  for mac in fQueue.Keys do
-  begin
-    macModel := fQueue[mac];
-    macTmp := StringReplace(LowerCase(mac), ' ', '', [rfReplaceAll]);
-    iPos := Pos(macTmp, rspStrTmp);
-    if (iPos - 2) > 0 then
-    begin
-      preStr := Copy(rspStrTmp, iPos - 2, 2);
-      sqlList := TStringList.Create;
-      if LowerCase(preStr) = '4f' then
-      begin
-        rspMessage := '在线命令返回';
-        sql := Format('Delete from T_M_infos_Status where 1=1 and MMac = %s', [QuotedStr(mac)]);
-        sqlList.Add(sql);
-        sql := Format('insert into T_M_infos_Status (MMac,MStatus) values (%s,1)', [QuotedStr(mac)]);
-        sqlList.Add(sql);
-        macModel.cStatus := OnLine;
-        fQueue.AddOrSetValue(macModel.MMac, macModel);
-        bpSetTimer(macModel);
-      end
-      else if LowerCase(preStr) = '4D' then
-      begin
-        rspMessage := '开始测量命令返回';
-        bpSend(macModel);
-      end
-      else if LowerCase(preStr) = '44' then
-      begin
-        iPos := iPos + Length(macTmp);
-        rspMessage := '测量数据返回';
-        rspSBP := IntToStr((StrToInt(Copy(rspStrTmp, iPos, 2)) - 30)) + IntToStr((StrToInt(Copy(rspStrTmp, iPos + 2, 2)) - 30)) + IntToStr((StrToInt(Copy(rspStrTmp, iPos + 4, 2)) - 30));
-        rspDBP := IntToStr((StrToInt(Copy(rspStrTmp, iPos + 6, 2)) - 30)) + IntToStr((StrToInt(Copy(rspStrTmp, iPos + 8, 2)) - 30)) + IntToStr((StrToInt(Copy(rspStrTmp, iPos + 10, 2)) - 30));
-        rspHR := IntToStr((StrToInt(Copy(rspStrTmp, iPos + 12, 2)) - 30)) + IntToStr((StrToInt(Copy(rspStrTmp, iPos + 14, 2)) - 30)) + IntToStr((StrToInt(Copy(rspStrTmp, iPos + 16, 2)) - 30));
-        sql := Format('insert into T_M_Datas (MMac,MSBP,MDBP,MHR) values (%s,%s,%s,%s)', [QuotedStr(mac), QuotedStr(IntToStr(StrToInt(rspSBP))), QuotedStr(IntToStr(StrToInt(rspDBP))), QuotedStr(IntToStr(StrToInt(rspHR)))]);
-        sqlList.Add(sql);
-      end
-      else if LowerCase(preStr) = '53' then
-      begin
-        rspMessage := '设置间隔命令返回';
-      end
-      else
-      begin
-        rspMessage := '未知消息';
-        macModel.cStatus := Connected;
-        fQueue.AddOrSetValue(macModel.MMac, macModel);
-      end;
-      TDLog.Instance.writeLog('Rsp:mac=' + mac + ',rspMessage = ' + rspMessage + ',rspBuff =' + rspStr);
-    end;
-  end;
-  if sqlList.Count > 0 then
-  begin
-    TDBManager.Instance.execSql(sqlList);
-  end;
+  praseRspData(rspStrTmp);
 end;
 
 procedure TDataManager.ClientSocketWrite(Sender: TObject; Socket: TCustomWinSocket);
@@ -368,6 +310,84 @@ begin
     end;
   end;
 
+end;
+
+procedure TDataManager.praseRspData(rsp: string);
+var
+  mac: string;
+  rspStrTmp, macTmp: string;
+  iPos: Integer;
+  preStr: string; //返回数据的前一个字符来判断是什么命令 4F=是否在线 4D=开始测量  44=测量的数据 53=自动测量的时间间隔
+  rspMessage: string;
+  sql: string;
+  sqlList: TStringList;
+  rspSBP, rspDBP, rspHR: string;
+  macModel: TDetailBPModel;
+  leftStr: string; //解析完一次剩下的数据
+begin
+  rspStrTmp := rsp;
+  for mac in fQueue.Keys do
+  begin
+    macModel := fQueue[mac];
+    macTmp := StringReplace(LowerCase(mac), ' ', '', [rfReplaceAll]);
+    iPos := Pos(macTmp, rspStrTmp);
+    if (iPos - 2) > 0 then
+    begin
+      preStr := Copy(rspStrTmp, iPos - 2, 2);
+      sqlList := TStringList.Create;
+      if LowerCase(preStr) = '4f' then
+      begin
+        rspMessage := '在线命令返回';
+        sql := Format('Delete from T_M_infos_Status where 1=1 and MMac = %s', [QuotedStr(mac)]);
+        sqlList.Add(sql);
+        sql := Format('insert into T_M_infos_Status (MMac,MStatus) values (%s,1)', [QuotedStr(mac)]);
+        sqlList.Add(sql);
+        macModel.cStatus := OnLine;
+        fQueue.AddOrSetValue(macModel.MMac, macModel);
+        bpSetTimer(macModel);
+        leftStr := Copy(rspStrTmp, iPos + Length(macTmp), Length(rspStrTmp) - (iPos + Length(macTmp) + 1));
+      end
+      else if LowerCase(preStr) = '4D' then
+      begin
+        rspMessage := '开始测量命令返回';
+        bpSend(macModel);
+        leftStr := Copy(rspStrTmp, iPos + Length(macTmp), Length(rspStrTmp) - (iPos + Length(macTmp) + 1));
+      end
+      else if LowerCase(preStr) = '44' then
+      begin
+        leftStr := Copy(rspStrTmp, iPos + Length(macTmp), Length(rspStrTmp) - (iPos + Length(macTmp) + 1));
+        iPos := iPos + Length(macTmp);
+        rspMessage := '测量数据返回';
+        rspSBP := IntToStr((StrToInt(Copy(rspStrTmp, iPos, 2)) - 30)) + IntToStr((StrToInt(Copy(rspStrTmp, iPos + 2, 2)) - 30)) + IntToStr((StrToInt(Copy(rspStrTmp, iPos + 4, 2)) - 30));
+        rspDBP := IntToStr((StrToInt(Copy(rspStrTmp, iPos + 6, 2)) - 30)) + IntToStr((StrToInt(Copy(rspStrTmp, iPos + 8, 2)) - 30)) + IntToStr((StrToInt(Copy(rspStrTmp, iPos + 10, 2)) - 30));
+        rspHR := IntToStr((StrToInt(Copy(rspStrTmp, iPos + 12, 2)) - 30)) + IntToStr((StrToInt(Copy(rspStrTmp, iPos + 14, 2)) - 30)) + IntToStr((StrToInt(Copy(rspStrTmp, iPos + 16, 2)) - 30));
+        sql := Format('insert into T_M_Datas (MMac,MSBP,MDBP,MHR) values (%s,%s,%s,%s)', [QuotedStr(mac), QuotedStr(IntToStr(StrToInt(rspSBP))), QuotedStr(IntToStr(StrToInt(rspDBP))), QuotedStr(IntToStr(StrToInt(rspHR)))]);
+        sqlList.Add(sql);
+      end
+      else if LowerCase(preStr) = '53' then
+      begin
+        leftStr := Copy(rspStrTmp, iPos + Length(macTmp), Length(rspStrTmp) - (iPos + Length(macTmp) + 8));
+        rspMessage := '设置间隔命令返回';
+      end
+      else
+      begin
+        rspMessage := '未知消息';
+        macModel.cStatus := Connected;
+        fQueue.AddOrSetValue(macModel.MMac, macModel);
+        leftStr := '';
+      end;
+      TDLog.Instance.writeLog('Rsp:mac=' + mac + ',rspMessage = ' + rspMessage + ',rspBuff =' + rspStrTmp);
+    end;
+  end;
+  if sqlList.Count > 0 then
+  begin
+    TDBManager.Instance.execSql(sqlList);
+  end;
+  if Length(leftStr) > 0 then
+  begin
+    TDLog.Instance.writeLog('Rsp:mac=' + mac + '粘包,leftBuff =' + leftStr);
+    praseRspData(leftStr);
+  end;
 end;
 
 class procedure TDataManager.ReleaseInstance;

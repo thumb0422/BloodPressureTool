@@ -49,18 +49,19 @@ uses
 procedure TDataManager.bpOnLine(macModel: TDetailBPModel);
 var
   sourceData, strData: string;
-  reqBuff: array[0..13] of byte;
   iLen: integer;
   tmpSocket: TClientSocket;
+  reqMemory:TMemoryStream;
 begin
   tmpSocket := fSocketQueue.Items[macModel.MGroup];
   if Assigned(tmpSocket) and tmpSocket.Active then
   begin
     sourceData := 'FC 0C 02 01 4F ' + macModel.MMac + ' 03';
     strData := StringReplace(sourceData, ' ', '', [rfReplaceAll]);
-    ZeroMemory(@reqBuff[0], 14);
-    iLen := HexToBin(pChar(strData), pchar(@reqBuff[0]), Length(sourceData));
-    tmpSocket.Socket.SendBuf(reqBuff, iLen);
+    reqMemory := TMemoryStream.Create;
+    reqMemory.Size := Length(strData) div 2;
+    iLen := HexToBin(PChar(strData),reqMemory.Memory,reqMemory.Size);
+    tmpSocket.Socket.SendStream(reqMemory);
     TDLog.Instance.writeLog('Req:mac=' + macModel.MMac + ',sendBuff =' + sourceData);
   end
   else
@@ -72,18 +73,19 @@ end;
 procedure TDataManager.bpSend(macModel: TDetailBPModel);
 var
   sourceData, strData: string;
-  reqBuff: array[0..13] of byte;
   iLen: integer;
   tmpSocket: TClientSocket;
+  reqMemory:TMemoryStream;
 begin
   tmpSocket := fSocketQueue.Items[macModel.MGroup];
   if Assigned(tmpSocket) and tmpSocket.Active then
   begin
     sourceData := 'FC 0C 02 01 4D' + macModel.MMac + '03';
     strData := StringReplace(sourceData, ' ', '', [rfReplaceAll]);
-    ZeroMemory(@reqBuff[0], 14);
-    iLen := HexToBin(pChar(strData), pchar(@reqBuff[0]), Length(sourceData));
-    tmpSocket.Socket.SendBuf(reqBuff, iLen);
+    reqMemory := TMemoryStream.Create;
+    reqMemory.Size := Length(strData) div 2;
+    iLen := HexToBin(PChar(strData),reqMemory.Memory,reqMemory.Size);
+    tmpSocket.Socket.SendStream(reqMemory);
     TDLog.Instance.writeLog('Req:mac=' + macModel.MMac + ',sendBuff =' + sourceData);
   end
   else
@@ -95,18 +97,19 @@ end;
 procedure TDataManager.bpSetTimer(macModel: TDetailBPModel);
 var
   sourceData, strData: string;
-  reqBuff: array[0..16] of byte;
   iLen: integer;
   tmpSocket: TClientSocket;
+  reqMemory:TMemoryStream;
 begin
   tmpSocket := fSocketQueue.Items[macModel.MGroup];
   if Assigned(tmpSocket) and tmpSocket.Active then
   begin
     sourceData := 'FC 0F 02 01 53' + macModel.MMac + '30 39 30 03';
     strData := StringReplace(sourceData, ' ', '', [rfReplaceAll]);
-    ZeroMemory(@reqBuff[0], 17);
-    iLen := HexToBin(pChar(strData), pchar(@reqBuff[0]), Length(sourceData));
-    tmpSocket.Socket.SendBuf(reqBuff, iLen);
+    reqMemory := TMemoryStream.Create;
+    reqMemory.Size := Length(strData) div 2;
+    iLen := HexToBin(PChar(strData),reqMemory.Memory,reqMemory.Size);
+    tmpSocket.Socket.SendStream(reqMemory);
     TDLog.Instance.writeLog('Req:mac=' + macModel.MMac + ',sendBuff =' + sourceData);
   end
   else

@@ -4,7 +4,7 @@ object TDetailDataForm: TTDetailDataForm
   BorderStyle = bsDialog
   Caption = #24403#26085#25968#25454#26597#30475
   ClientHeight = 531
-  ClientWidth = 331
+  ClientWidth = 352
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,12 +20,13 @@ object TDetailDataForm: TTDetailDataForm
   object Panel1: TPanel
     Left = 0
     Top = 481
-    Width = 331
+    Width = 352
     Height = 50
     Align = alBottom
     TabOrder = 0
+    ExplicitWidth = 331
     object refreshBtn: TButton
-      Left = 56
+      Left = 64
       Top = 16
       Width = 75
       Height = 25
@@ -34,7 +35,7 @@ object TDetailDataForm: TTDetailDataForm
       OnClick = refreshBtnClick
     end
     object closeBtn: TButton
-      Left = 200
+      Left = 208
       Top = 16
       Width = 75
       Height = 25
@@ -46,15 +47,22 @@ object TDetailDataForm: TTDetailDataForm
   object DBGrid1: TDBGrid
     Left = 0
     Top = 0
-    Width = 331
+    Width = 352
     Height = 481
     Align = alClient
     DataSource = DataSource1
+    DrawingStyle = gdsGradient
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
     ReadOnly = True
     TabOrder = 1
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText
-    TitleFont.Height = -11
+    TitleFont.Height = -16
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
     Columns = <

@@ -4,16 +4,22 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Buttons, Vcl.ExtCtrls,
-  Vcl.StdCtrls, System.Math, DetailInfoView;
+  Generics.Collections, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Buttons,
+  Vcl.ExtCtrls, Vcl.StdCtrls, System.Math, DetailInfoView, Vcl.Menus;
 
 type
   TTBPStatesForm = class(TForm)
     ScrollBox1: TScrollBox;
+    PopupMenu1: TPopupMenu;
+    refreshMenu: TMenuItem;
     procedure FormCreate(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure refreshMenuClick(Sender: TObject);
   private
     { Private declarations }
+    fViewsDic: TDictionary<string, TDetailInfoView>;
     procedure initBPView;
+    procedure refreshBPViews;
   public
     { Public declarations }
   end;
@@ -26,7 +32,7 @@ var
 implementation
 
 uses
-  HDBManager, superobject, DetailBPModel;
+  HDBManager, superobject, DetailBPModel, DataManager;
 {$R *.dfm}
 
 procedure CreateBPStatesWinForm;
@@ -36,6 +42,11 @@ begin
   sForm := TTBPStatesForm.Create(Application);
   sForm.ShowModal;
   sForm.Free;
+end;
+
+procedure TTBPStatesForm.FormShow(Sender: TObject);
+begin
+  refreshBPViews;
 end;
 
 procedure TTBPStatesForm.initBPView;
@@ -79,6 +90,7 @@ begin
   fCol := Trunc((ScrollBox1.ClientWidth - fSeperateWidth) / (fWidth + fSeperateWidth)); //列数
   fRow := Ceil(dataCount / fCol);   //行数
   tmpCount := 0;
+  fViewsDic.Clear;
   for I := 0 to fRow - 1 do
   begin
     fTop := fSeperateWidth + I * (fHeight + fSeperateWidth);
@@ -101,7 +113,36 @@ begin
       detailView.Width := fWidth;
       detailView.Height := fHeight;
       detailView.data := bpModel;
+      fViewsDic.AddOrSetValue(bpModel.MMac, detailView);
       tmpCount := tmpCount + 1;
+    end;
+  end;
+end;
+
+procedure TTBPStatesForm.refreshMenuClick(Sender: TObject);
+begin
+  refreshBPViews;
+end;
+
+procedure TTBPStatesForm.refreshBPViews;
+var
+  macView: TDetailInfoView;
+  macModel: TDetailBPModel;
+  mac: string;
+  statusDic: TDictionary<string, TDetailBPModel>;
+begin
+  statusDic := TDataManager.Instance.bpQueue;
+  for mac in fViewsDic.Keys do
+  begin
+    macView := fViewsDic[mac];
+    statusDic.TryGetValue(mac,macModel);
+    if Assigned(macModel) then
+    begin
+      macView.reloadStatus(macModel.cStatus);
+    end
+    else
+    begin
+      macView.reloadStatus(UnConnect);
     end;
   end;
 end;
@@ -111,6 +152,7 @@ begin
   self.Caption := '血压计状态列表';
   self.Height := 1200;
   self.Width := 1800;
+  fViewsDic := TDictionary<string, TDetailInfoView>.Create();
   initBPView;
 end;
 

@@ -21,9 +21,9 @@ type
     Fdata: TDetailBPModel;
     FBPStatus: TBPInfoStatus;
     procedure Setdata(const Value: TDetailBPModel); //当前状态
-    procedure qryStatus;
   public
     property data: TDetailBPModel read Fdata write Setdata;
+    procedure reloadStatus(status: ConnectStatus);
   protected
     procedure onPopStartClick(Sender: TObject);
     procedure onPopStopClick(Sender: TObject);
@@ -61,15 +61,15 @@ begin
   descLabel.Transparent := True;
   descLabel.Parent := Self;
 
-//  statusLabel := TLabel.Create(Self);
-//  statusLabel.Caption := '未启动';
-//  statusLabel.Alignment := taCenter;
-//  statusLabel.Left := 5;
-//  statusLabel.Top := 30;
-//  statusLabel.Width := 120;
-//  statusLabel.Height := 20;
-//  statusLabel.Transparent := True;
-//  statusLabel.Parent := Self;
+  statusLabel := TLabel.Create(Self);
+  statusLabel.Caption := '未启动';
+  statusLabel.Alignment := taCenter;
+  statusLabel.Left := 5;
+  statusLabel.Top := 30;
+  statusLabel.Width := 120;
+  statusLabel.Height := 20;
+  statusLabel.Transparent := True;
+  statusLabel.Parent := Self;
 end;
 
 destructor TDetailInfoView.Destroy;
@@ -101,29 +101,21 @@ begin
   TDataManager.Instance.stop(data);
 end;
 
-procedure TDetailInfoView.qryStatus;
-var
-  jsonData: ISuperObject;
-  subData: ISuperObject;
-  sql: string;
-  status: string;
+procedure TDetailInfoView.reloadStatus(status: ConnectStatus);
 begin
-  sql := Format('Select MStatus from T_M_Infos_Status where 1=1 and MMac = %s', [QuotedStr(Fdata.MMac)]);
-  jsonData := TDBManager.Instance.getDataBySql(sql);
-  if jsonData.I['rowCount'] > 0 then
-  begin
-    for subData in jsonData['data'] do
-    begin
-      status := subData.S['MStatus'];
-    end;
-  end;
-  if status = '1' then
-  begin
-    statusLabel.Caption := '已启动';
-  end
-  else
-  begin
-    statusLabel.Caption := '未启动';
+  case status of
+    UnConnect:
+      begin
+        statusLabel.Caption := '未启动';
+      end;
+    Connected:
+      begin
+        statusLabel.Caption := '已连接';
+      end;
+    OnLine:
+      begin
+        statusLabel.Caption := '测量中';
+      end;
   end;
 end;
 
@@ -131,7 +123,6 @@ procedure TDetailInfoView.Setdata(const Value: TDetailBPModel);
 begin
   Fdata := Value;
   descLabel.Caption := '血压计-' + Fdata.MNo;
-//  qryStatus;
 end;
 
 end.

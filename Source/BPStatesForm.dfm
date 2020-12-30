@@ -14,6 +14,7 @@ object TBPStatesForm: TTBPStatesForm
   OldCreateOrder = False
   Position = poMainFormCenter
   OnCreate = FormCreate
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object ScrollBox1: TScrollBox
@@ -22,7 +23,15 @@ object TBPStatesForm: TTBPStatesForm
     Width = 800
     Height = 600
     Align = alClient
+    PopupMenu = PopupMenu1
     TabOrder = 0
-    ExplicitHeight = 559
+  end
+  object PopupMenu1: TPopupMenu
+    Left = 488
+    Top = 120
+    object refreshMenu: TMenuItem
+      Caption = #21047#26032'(&R)'
+      OnClick = refreshMenuClick
+    end
   end
 end

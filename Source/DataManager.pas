@@ -26,12 +26,12 @@ type
     procedure ClientSocketWrite(Sender: TObject; Socket: TCustomWinSocket);
   private
     fSocketQueue: TDictionary<string, TClientSocket>;  {ipAddress:TClientSocket}
-    fQueue: TDictionary<string, TDetailBPModel>; {macAddress:TDetailBPModel}
     procedure initSocket(ip: string);
     function getBPStatus(mac: string): string;
     function getIPSbyMac(macModel: TDetailBPModel): string;
     procedure praseRspData(rsp: string);
   public
+    bpQueue: TDictionary<string, TDetailBPModel>;
     procedure start(macModel: TDetailBPModel);
     procedure stop(macModel: TDetailBPModel);
     procedure stopAll;
@@ -44,7 +44,7 @@ type
 implementation
 
 uses
-  TLog, HDBManager, superobject;
+  TLog, HDBManager, superobject, Tool;
 { TDataManager }
 
 procedure TDataManager.bpOnLine(macModel: TDetailBPModel);
@@ -125,13 +125,13 @@ var
   mMac: string;
 begin
   TDLog.Instance.writeLog('Connect:remoteHost=' + Socket.RemoteAddress + ':' + Socket.RemotePort.ToString);
-  for mMac in fQueue.Keys do
+  for mMac in bpQueue.Keys do
   begin
-    macModel := fQueue[mMac];
+    macModel := bpQueue[mMac];
     if macModel.cStatus = UnConnect then
     begin
       macModel.cStatus := Connected;
-      fQueue.AddOrSetValue(macModel.MMac, macModel);
+      bpQueue.AddOrSetValue(macModel.MMac, macModel);
       bpOnLine(macModel);
     end;
   end;
@@ -149,12 +149,12 @@ var
   mMac: string;
 begin
   mGroup := Socket.RemoteAddress + ':' + IntToStr(Socket.RemotePort);
-  for mMac in fQueue.Keys do
+  for mMac in bpQueue.Keys do
   begin
-    macModel := fQueue.Items[mMac];
+    macModel := bpQueue.Items[mMac];
     if LowerCase(macModel.MGroup) = LowerCase(mGroup) then
     begin
-      fQueue.Remove(macModel.MMac);
+      bpQueue.Remove(macModel.MMac);
     end;
   end;
   TDLog.Instance.writeLog('Disconnect:remoteHost=' + Socket.RemoteAddress + ':' + Socket.RemotePort.ToString);
@@ -167,12 +167,12 @@ var
   mMac: string;
 begin
   mGroup := Socket.RemoteAddress + ':' + IntToStr(Socket.RemotePort);
-  for mMac in fQueue.Keys do
+  for mMac in bpQueue.Keys do
   begin
-    macModel := fQueue.Items[mMac];
+    macModel := bpQueue.Items[mMac];
     if LowerCase(macModel.MGroup) = LowerCase(mGroup) then
     begin
-      fQueue.Remove(macModel.MMac);
+      bpQueue.Remove(macModel.MMac);
     end;
   end;
   TDLog.Instance.writeLog('Error:ErrorCode =' + ErrorCode.ToString + ',remoteHost=' + Socket.RemoteAddress + ':' + Socket.RemotePort.ToString);
@@ -208,7 +208,7 @@ end;
 
 constructor TDataManager.Create;
 begin
-  fQueue := TDictionary<string, TDetailBPModel>.Create();
+  bpQueue := TDictionary<string, TDetailBPModel>.Create();
   fSocketQueue := TDictionary<string, TClientSocket>.Create();
 end;
 
@@ -326,9 +326,9 @@ var
   leftStr: string; //解析完一次剩下的数据
 begin
   rspStrTmp := rsp;
-  for mac in fQueue.Keys do
+  for mac in bpQueue.Keys do
   begin
-    macModel := fQueue[mac];
+    macModel := bpQueue[mac];
     macTmp := StringReplace(LowerCase(mac), ' ', '', [rfReplaceAll]);
     iPos := Pos(macTmp, rspStrTmp);
     if (iPos - 2) > 0 then
@@ -343,7 +343,7 @@ begin
         sql := Format('insert into T_M_infos_Status (MMac,MStatus) values (%s,1)', [QuotedStr(mac)]);
         sqlList.Add(sql);
         macModel.cStatus := OnLine;
-        fQueue.AddOrSetValue(macModel.MMac, macModel);
+        bpQueue.AddOrSetValue(macModel.MMac, macModel);
         bpSetTimer(macModel);
         leftStr := Copy(rspStrTmp, iPos + Length(macTmp), Length(rspStrTmp) - (iPos + Length(macTmp) + 1));
       end
@@ -358,9 +358,9 @@ begin
         leftStr := Copy(rspStrTmp, iPos + Length(macTmp), Length(rspStrTmp) - (iPos + Length(macTmp) + 1));
         iPos := iPos + Length(macTmp);
         rspMessage := '测量数据返回';
-        rspSBP := IntToStr((StrToInt(Copy(rspStrTmp, iPos, 2)) - 30)) + IntToStr((StrToInt(Copy(rspStrTmp, iPos + 2, 2)) - 30)) + IntToStr((StrToInt(Copy(rspStrTmp, iPos + 4, 2)) - 30));
-        rspDBP := IntToStr((StrToInt(Copy(rspStrTmp, iPos + 6, 2)) - 30)) + IntToStr((StrToInt(Copy(rspStrTmp, iPos + 8, 2)) - 30)) + IntToStr((StrToInt(Copy(rspStrTmp, iPos + 10, 2)) - 30));
-        rspHR := IntToStr((StrToInt(Copy(rspStrTmp, iPos + 12, 2)) - 30)) + IntToStr((StrToInt(Copy(rspStrTmp, iPos + 14, 2)) - 30)) + IntToStr((StrToInt(Copy(rspStrTmp, iPos + 16, 2)) - 30));
+        rspSBP := IntToStr((HexToAscII(Copy(rspStrTmp, iPos, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 2, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 4, 2))));
+        rspDBP := IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 6, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 8, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 10, 2))));
+        rspHR := IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 12, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 14, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 16, 2))));
         sql := Format('insert into T_M_Datas (MMac,MSBP,MDBP,MHR) values (%s,%s,%s,%s)', [QuotedStr(mac), QuotedStr(IntToStr(StrToInt(rspSBP))), QuotedStr(IntToStr(StrToInt(rspDBP))), QuotedStr(IntToStr(StrToInt(rspHR)))]);
         sqlList.Add(sql);
       end
@@ -373,7 +373,7 @@ begin
       begin
         rspMessage := '未知消息';
         macModel.cStatus := Connected;
-        fQueue.AddOrSetValue(macModel.MMac, macModel);
+        bpQueue.AddOrSetValue(macModel.MMac, macModel);
         leftStr := '';
       end;
       TDLog.Instance.writeLog('Rsp:mac=' + mac + ',rspMessage = ' + rspMessage + ',rspBuff =' + rspStrTmp);
@@ -407,20 +407,20 @@ begin
       if tmpSocket.Active then
       begin
         macModel.cStatus := Connected;
-        fQueue.AddOrSetValue(macModel.MMac, macModel);
+        bpQueue.AddOrSetValue(macModel.MMac, macModel);
         bpOnLine(macModel);
       end
       else
       begin
         try
           macModel.cStatus := UnConnect;
-          fQueue.AddOrSetValue(macModel.MMac, macModel);
+          bpQueue.AddOrSetValue(macModel.MMac, macModel);
           fSocketQueue.AddOrSetValue(macModel.MGroup, tmpSocket);
           tmpSocket.Open;
         except
           on E: Exception do
           begin
-            fQueue.Remove(macModel.MMac);
+            bpQueue.Remove(macModel.MMac);
             fSocketQueue.Remove(macModel.MGroup);
             TDLog.Instance.writeLog('打开' + macModel.MGroup + '服务失败');
           end;
@@ -432,7 +432,7 @@ begin
   begin
     initSocket(macModel.MGroup);
     macModel.cStatus := UnConnect;
-    fQueue.AddOrSetValue(macModel.MMac, macModel);
+    bpQueue.AddOrSetValue(macModel.MMac, macModel);
   end;
 end;
 
@@ -441,10 +441,10 @@ var
   sql: string;
   sqlList: TStringList;
 begin
-  fQueue.Remove(macModel.MMac);
-  if fQueue.Keys.Count = 0 then
+  bpQueue.Remove(macModel.MMac);
+  if bpQueue.Keys.Count = 0 then
   begin
-    fQueue.Clear;
+    bpQueue.Clear;
   end;
   sqlList := TStringList.Create;
   sql := Format('Delete from T_M_infos_Status where 1=1 and MMac = %s', [QuotedStr(macModel.MMac)]);
@@ -460,9 +460,9 @@ var
   macModel: TDetailBPModel;
   mac: string;
 begin
-  for mac in fQueue.Keys do
+  for mac in bpQueue.Keys do
   begin
-    macModel := fQueue.Items[mac];
+    macModel := bpQueue.Items[mac];
     stop(macModel);
   end;
 end;

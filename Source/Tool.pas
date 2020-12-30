@@ -9,6 +9,8 @@ function StrToHex(src: string): string;
 
 function HexToStr(src: string): string;
 
+function HexToAscII(src: string): Integer;
+
 implementation
 
 function StrToHex(src: string): string;
@@ -25,9 +27,11 @@ begin
 end;
 
 function HexToStr(src: string): string;
+
   function HexToInt(hex: string): integer;
   var
     i: integer;
+
     function Ncf(num, f: integer): integer;
     var
       i: integer;
@@ -49,6 +53,7 @@ function HexToStr(src: string): string;
       else if (HexToken > #64) and (HexToken < #71) then { chars A....F }
         Result := Ord(HexToken) - 65 + 10;
     end;
+
   begin
     result := 0;
     hex := ansiuppercase(trim(hex));
@@ -72,6 +77,21 @@ begin
     i := i + 2;
   end;
   result := s;
+end;
+
+function HexToAscII(src: string): integer;
+var
+  i: Integer;
+  tmpStr: string;
+begin
+  tmpStr := '';
+  i := 1;
+  while i < Length(src) do
+  begin
+    tmpStr := tmpStr + Chr(StrToIntDef('$' + Copy(src, i, 2), 0));
+    Inc(i, 2);
+  end;
+  Result := StrToInt(tmpStr)
 end;
 
 end.

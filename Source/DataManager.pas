@@ -27,7 +27,7 @@ type
   private
     fSocketQueue: TDictionary<string, TClientSocket>;  {ipAddress:TClientSocket}
     procedure initSocket(ip: string);
-    function getBPStatus(mac: string): string;
+//    function getBPStatus(mac: string): string;
     function getIPSbyMac(macModel: TDetailBPModel): string;
     procedure praseRspData(rsp: string);
   public
@@ -235,24 +235,24 @@ begin
   inherited;
 end;
 
-function TDataManager.getBPStatus(mac: string): string;
-var
-  jsonData: ISuperObject;
-  subData: ISuperObject;
-  status: string;
-  sql: string;
-begin
-  sql := Format('Select * From T_M_Infos_Status where 1=1 and mac = %@ ', [QuotedStr(mac)]);
-  jsonData := TDBManager.Instance.getDataBySql(sql);
-  if jsonData.I['rowCount'] > 0 then
-  begin
-    for subData in jsonData['data'] do
-    begin
-      status := subData.S['MStatus'];
-    end;
-  end;
-  Result := status;
-end;
+//function TDataManager.getBPStatus(mac: string): string;
+//var
+//  jsonData: ISuperObject;
+//  subData: ISuperObject;
+//  status: string;
+//  sql: string;
+//begin
+//  sql := Format('Select * From T_M_Infos_Status where 1=1 and mac = %@ ', [QuotedStr(mac)]);
+//  jsonData := TDBManager.Instance.getDataBySql(sql);
+//  if jsonData.I['rowCount'] > 0 then
+//  begin
+//    for subData in jsonData['data'] do
+//    begin
+//      status := subData.S['MStatus'];
+//    end;
+//  end;
+//  Result := status;
+//end;
 
 class function TDataManager.GetInstance: TDataManager;
 begin
@@ -326,6 +326,7 @@ var
   leftStr: string; //解析完一次剩下的数据
 begin
   rspStrTmp := rsp;
+  sqlList := TStringList.Create;
   for mac in bpQueue.Keys do
   begin
     macModel := bpQueue[mac];
@@ -334,28 +335,27 @@ begin
     if (iPos - 2) > 0 then
     begin
       preStr := Copy(rspStrTmp, iPos - 2, 2);
-      sqlList := TStringList.Create;
       if LowerCase(preStr) = '4f' then
       begin
         rspMessage := '在线命令返回';
-        sql := Format('Delete from T_M_infos_Status where 1=1 and MMac = %s', [QuotedStr(mac)]);
-        sqlList.Add(sql);
-        sql := Format('insert into T_M_infos_Status (MMac,MStatus) values (%s,1)', [QuotedStr(mac)]);
-        sqlList.Add(sql);
+//        sql := Format('Delete from T_M_infos_Status where 1=1 and MMac = %s', [QuotedStr(mac)]);
+//        sqlList.Add(sql);
+//        sql := Format('insert into T_M_infos_Status (MMac,MStatus) values (%s,1)', [QuotedStr(mac)]);
+//        sqlList.Add(sql);
         macModel.cStatus := OnLine;
         bpQueue.AddOrSetValue(macModel.MMac, macModel);
         bpSetTimer(macModel);
-        leftStr := Copy(rspStrTmp, iPos + Length(macTmp), Length(rspStrTmp) - (iPos + Length(macTmp) + 1));
+        leftStr := Copy(rspStrTmp, iPos + Length(macTmp) + 2, Length(rspStrTmp) - (iPos + Length(macTmp) + 1));
       end
       else if LowerCase(preStr) = '4D' then
       begin
         rspMessage := '开始测量命令返回';
         bpSend(macModel);
-        leftStr := Copy(rspStrTmp, iPos + Length(macTmp), Length(rspStrTmp) - (iPos + Length(macTmp) + 1));
+        leftStr := Copy(rspStrTmp, iPos + Length(macTmp) + 2, Length(rspStrTmp) - (iPos + Length(macTmp) + 1));
       end
       else if LowerCase(preStr) = '44' then
       begin
-        leftStr := Copy(rspStrTmp, iPos + Length(macTmp), Length(rspStrTmp) - (iPos + Length(macTmp) + 1));
+        leftStr := Copy(rspStrTmp, iPos + Length(macTmp) + 6 *3 + 2, Length(rspStrTmp) - (iPos + Length(macTmp) + 6 *3  + 1));
         iPos := iPos + Length(macTmp);
         rspMessage := '测量数据返回';
         rspSBP := IntToStr((HexToAscII(Copy(rspStrTmp, iPos, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 2, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 4, 2))));
@@ -366,7 +366,7 @@ begin
       end
       else if LowerCase(preStr) = '53' then
       begin
-        leftStr := Copy(rspStrTmp, iPos + Length(macTmp), Length(rspStrTmp) - (iPos + Length(macTmp) + 8));
+        leftStr := Copy(rspStrTmp, iPos + Length(macTmp) + 2 *3 +2, Length(rspStrTmp) - (iPos + Length(macTmp) + 2 *3 +1));
         rspMessage := '设置间隔命令返回';
       end
       else
@@ -447,8 +447,8 @@ begin
     bpQueue.Clear;
   end;
   sqlList := TStringList.Create;
-  sql := Format('Delete from T_M_infos_Status where 1=1 and MMac = %s', [QuotedStr(macModel.MMac)]);
-  sqlList.Add(sql);
+//  sql := Format('Delete from T_M_infos_Status where 1=1 and MMac = %s', [QuotedStr(macModel.MMac)]);
+//  sqlList.Add(sql);
   if sqlList.Count > 0 then
   begin
     TDBManager.Instance.execSql(sqlList);

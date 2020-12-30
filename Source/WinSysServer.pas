@@ -4,9 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  Menus, ExtCtrls, StdCtrls, ComCtrls, ShellAPI, ActnList, DateUtils,
-  Buttons, ImgList, USysServer, OleCtrls, System.Actions,ComDefine,
-  System.ImageList;
+  Menus, ExtCtrls, StdCtrls, ComCtrls, ShellAPI, ActnList, DateUtils, Buttons,
+  ImgList, USysServer, OleCtrls, System.Actions, ComDefine, System.ImageList;
 
 type
   Tfrm_SysServer = class(TForm)
@@ -31,6 +30,8 @@ type
     mechineStatesBtn: TBitBtn;
     act_User: TAction;
     act_bp: TAction;
+    minu_set: TMenuItem;
+    act_set: TAction;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -47,6 +48,7 @@ type
     procedure act_UserExecute(Sender: TObject);
     procedure act_bpExecute(Sender: TObject);
     procedure setBtnClick(Sender: TObject);
+    procedure act_setExecute(Sender: TObject);
   private
     FTaskMessage: DWord;
     FIconData: TNotifyIconData;
@@ -397,7 +399,6 @@ begin
   Stop;
 end;
 
-
 function Tfrm_SysServer.GetDMServerState: TDMServerState;
 begin
 {返回当前的系统状态}
@@ -461,7 +462,7 @@ end;
 
 procedure Tfrm_SysServer.act_SetupExecute(Sender: TObject);
 begin
-  {显示设置窗体}
+  {显示信息录入窗体}
   DMWinServerSet;
 end;
 
@@ -469,6 +470,11 @@ procedure Tfrm_SysServer.act_LogExecute(Sender: TObject);
 begin
   {显示日志窗体}
   DMWinServerLog;
+end;
+
+procedure Tfrm_SysServer.act_setExecute(Sender: TObject);
+begin
+//
 end;
 
 end.

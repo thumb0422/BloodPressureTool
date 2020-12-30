@@ -2,7 +2,7 @@ object TSetForm: TTSetForm
   Left = 0
   Top = 0
   BorderStyle = bsDialog
-  Caption = #35774#32622
+  Caption = #34880#21387#35745#20449#24687#24405#20837
   ClientHeight = 404
   ClientWidth = 768
   Color = clBtnFace

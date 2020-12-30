@@ -4,7 +4,8 @@ interface
 
 uses
   SvcMgr, SysUtils, Messages, Windows, Classes, DateUtils, Forms, StdCtrls,
-  ComCtrls, ScktComp, ShellAPI, WinSvc, Registry, Dialogs,ComDefine,SetForm,BPStatesForm;
+  ComCtrls, ScktComp, ShellAPI, WinSvc, Registry, Dialogs, ComDefine, SetForm,
+  BPStatesForm;
 
 type
   TDMServerState = Integer;
@@ -59,10 +60,15 @@ procedure DMServerAddLog(const S: string);
 function GetDMMainHandle: THandle;
   {程序关闭}
 
-  {设置窗体}
+  {血压计信息录入窗体}
+
 procedure DMWinServerSet;
 {状态显示窗体}
+
 procedure DMWinBPStates;
+
+{血压计系统 设置}
+procedure DMWinSystemBPSet;
 
 procedure DMWinServerFree;
 
@@ -275,15 +281,22 @@ begin
   Showmessage('显示日志窗体');
   //CreateWinSysServerLog;
 end;
+
 procedure DMWinServerSet;
 begin
   CreateSetWinForm;
+end;
+
+procedure DMWinSystemBPSet;
+begin
+
 end;
 
 procedure DMWinBPStates;
 begin
   CreateBPStatesWinForm;
 end;
+
 function DateTimeBetweenStr(const ANow, AThen: TDateTime): string;
 var
   i: Integer;

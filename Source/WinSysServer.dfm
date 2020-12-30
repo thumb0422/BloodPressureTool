@@ -26,8 +26,6 @@ object frm_SysServer: Tfrm_SysServer
     Height = 170
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 356
-    ExplicitHeight = 136
     object lbl_NowTime: TLabel
       Left = 16
       Top = 48
@@ -178,7 +176,7 @@ object frm_SysServer: Tfrm_SysServer
       Top = 112
       Width = 120
       Height = 25
-      Caption = #35774#32622
+      Caption = #34880#21387#35745#20449#24687#24405#20837
       TabOrder = 2
       OnClick = setBtnClick
     end
@@ -187,7 +185,7 @@ object frm_SysServer: Tfrm_SysServer
       Top = 112
       Width = 120
       Height = 25
-      Caption = #29366#24577#26597#35810
+      Caption = #34880#21387#35745#29366#24577#26597#35810
       TabOrder = 3
       OnClick = mechineStatesBtnClick
     end
@@ -198,6 +196,9 @@ object frm_SysServer: Tfrm_SysServer
     object minu_Show: TMenuItem
       Action = act_Show
       Default = True
+    end
+    object minu_set: TMenuItem
+      Action = act_set
     end
     object N_Separator: TMenuItem
       Caption = '-'
@@ -236,6 +237,10 @@ object frm_SysServer: Tfrm_SysServer
       Caption = #34880#21387#35745'(&B)'
       OnExecute = act_bpExecute
     end
+    object act_set: TAction
+      Caption = #35774#32622'(&S)'
+      OnExecute = act_setExecute
+    end
   end
   object tmr_RunTime: TTimer
     Enabled = False
@@ -247,7 +252,7 @@ object frm_SysServer: Tfrm_SysServer
     Left = 288
     Top = 16
     Bitmap = {
-      494C010104000900580010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101040009005C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

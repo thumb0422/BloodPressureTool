@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
-    <Transaction>2020/11/16 17:04:52.000.983,D:\Work\BloodPressureTool\Source\BloodPressureProject.dproj=D:\Work\BloodPressureTool\Source\ProSysServer.dproj</Transaction>
+    <Transaction>2020/11/16 17:04:52.000.983,D:\Work\BloodPressureTool\Source\ProSysServer.dproj=D:\Work\BloodPressureTool\Source\BloodPressureProject.dproj</Transaction>
     <Transaction>2020/11/16 19:28:35.000.801,D:\Work\BloodPressureTool\Source\TLog\ILog.pas=</Transaction>
     <Transaction>2020/12/07 15:47:05.000.430,D:\Work\BloodPressureTool\Source\WinAbout.pas=</Transaction>
-    <Transaction>2020/12/07 16:03:43.702,=D:\Work\BloodPressureTool\Source\TLog.pas</Transaction>
-    <Transaction>2020/12/07 16:06:17.124,=D:\Work\BloodPressureTool\Source\Unit1.pas</Transaction>
-    <Transaction>2020/12/07 16:06:30.139,D:\Work\BloodPressureTool\Source\TDBManager.pas=D:\Work\BloodPressureTool\Source\Unit1.pas</Transaction>
-    <Transaction>2020/12/07 16:15:35.200,=D:\Work\BloodPressureTool\Source\Unit1.pas</Transaction>
-    <Transaction>2020/12/07 16:15:57.438,D:\Work\BloodPressureTool\Source\ComDefine.pas=D:\Work\BloodPressureTool\Source\Unit1.pas</Transaction>
+    <Transaction>2020/12/07 16:03:43.000.702,=D:\Work\BloodPressureTool\Source\TLog.pas</Transaction>
+    <Transaction>2020/12/07 16:06:17.000.124,=D:\Work\BloodPressureTool\Source\Unit1.pas</Transaction>
+    <Transaction>2020/12/07 16:06:30.000.139,D:\Work\BloodPressureTool\Source\Unit1.pas=D:\Work\BloodPressureTool\Source\TDBManager.pas</Transaction>
+    <Transaction>2020/12/07 16:15:35.000.200,=D:\Work\BloodPressureTool\Source\Unit1.pas</Transaction>
+    <Transaction>2020/12/07 16:15:57.000.438,D:\Work\BloodPressureTool\Source\Unit1.pas=D:\Work\BloodPressureTool\Source\ComDefine.pas</Transaction>
   </Transactions>
 </BorlandProject>

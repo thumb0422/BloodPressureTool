@@ -474,7 +474,7 @@ end;
 
 procedure Tfrm_SysServer.act_setExecute(Sender: TObject);
 begin
-//
+  DMWinSystemBPSet;
 end;
 
 end.

@@ -26,9 +26,11 @@ type
     procedure ClientSocketWrite(Sender: TObject; Socket: TCustomWinSocket);
   private
     fSocketQueue: TDictionary<string, TClientSocket>;  {ipAddress:TClientSocket}
+    fTimeInterval:string;
     procedure initSocket(ip: string);
 //    function getBPStatus(mac: string): string;
     function getIPSbyMac(macModel: TDetailBPModel): string;
+    function getTimeInterval:string;//获取时间间隔
     procedure praseRspData(rsp: string);
   public
     bpQueue: TDictionary<string, TDetailBPModel>;
@@ -38,7 +40,7 @@ type
   private
     procedure bpOnLine(macModel: TDetailBPModel); //是否在线
     procedure bpSend(macModel: TDetailBPModel); //发送开始测量命令
-    procedure bpSetTimer(macModel: TDetailBPModel); //设置间隔时间
+    procedure bpSetTimeInterval(macModel: TDetailBPModel); //设置间隔时间
   end;
 
 implementation
@@ -95,7 +97,7 @@ begin
   end;
 end;
 
-procedure TDataManager.bpSetTimer(macModel: TDetailBPModel);
+procedure TDataManager.bpSetTimeInterval(macModel: TDetailBPModel);
 var
   sourceData, strData: string;
   iLen: integer;
@@ -105,7 +107,7 @@ begin
   tmpSocket := fSocketQueue.Items[macModel.MGroup];
   if Assigned(tmpSocket) and tmpSocket.Active then
   begin
-    sourceData := 'FC 0F 02 01 53' + macModel.MMac + '30 39 30 03';
+    sourceData := 'FC 0F 02 01 53 ' + macModel.MMac + ' '+ AscIIToHex(StrToInt(fTimeInterval)) + ' 03';
     strData := StringReplace(sourceData, ' ', '', [rfReplaceAll]);
     reqMemory := TMemoryStream.Create;
     reqMemory.Size := Length(strData) div 2;
@@ -210,6 +212,11 @@ constructor TDataManager.Create;
 begin
   bpQueue := TDictionary<string, TDetailBPModel>.Create();
   fSocketQueue := TDictionary<string, TClientSocket>.Create();
+  fTimeInterval := getTimeInterval;
+  if Length(fTimeInterval) = 0 then
+  begin
+    fTimeInterval := '15';
+  end;
 end;
 
 destructor TDataManager.Destroy;
@@ -280,6 +287,21 @@ begin
   Result := group;
 end;
 
+function TDataManager.getTimeInterval: string;
+var
+  jsonData: ISuperObject;
+  subData: ISuperObject;
+begin
+  jsonData := TDBManager.Instance.getDataBySql('Select * From T_M_Set where MKey = "1000"');
+  if jsonData.I['rowCount'] > 0 then
+  begin
+    for subData in jsonData['data'] do
+    begin
+      Result := subData['MValue'].AsString;
+    end;
+  end;
+end;
+
 procedure TDataManager.initSocket(ip: string);
 var
   tmpSocket: TClientSocket;
@@ -344,7 +366,7 @@ begin
 //        sqlList.Add(sql);
         macModel.cStatus := OnLine;
         bpQueue.AddOrSetValue(macModel.MMac, macModel);
-        bpSetTimer(macModel);
+        bpSetTimeInterval(macModel);
         leftStr := Copy(rspStrTmp, iPos + Length(macTmp) + 2, Length(rspStrTmp) - (iPos + Length(macTmp) + 1));
       end
       else if LowerCase(preStr) = '4D' then

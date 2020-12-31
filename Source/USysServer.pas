@@ -5,7 +5,7 @@ interface
 uses
   SvcMgr, SysUtils, Messages, Windows, Classes, DateUtils, Forms, StdCtrls,
   ComCtrls, ScktComp, ShellAPI, WinSvc, Registry, Dialogs, ComDefine, SetForm,
-  BPStatesForm;
+  BPStatesForm,SystemSetForm;
 
 type
   TDMServerState = Integer;
@@ -288,8 +288,12 @@ begin
 end;
 
 procedure DMWinSystemBPSet;
+var
+  sForm: TSystemSet;
 begin
-
+  sForm := TSystemSet.Create(Application);
+  sForm.ShowModal;
+  sForm.Free;
 end;
 
 procedure DMWinBPStates;

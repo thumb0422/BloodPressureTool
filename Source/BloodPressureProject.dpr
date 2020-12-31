@@ -26,7 +26,8 @@ uses
   DetailBPModel in 'DetailBPModel.pas',
   DataManager in 'DataManager.pas',
   DetailDataForm in 'DetailDataForm.pas' {TDetailDataForm},
-  Tool in 'Tool.pas';
+  Tool in 'Tool.pas',
+  SystemSetForm in 'SystemSetForm.pas' {SystemSet};
 
 {$R *.res}
 

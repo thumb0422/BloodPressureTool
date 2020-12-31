@@ -24,3 +24,7 @@ CREATE TABLE IF NOT EXISTS "T_M_Infos_Status" (
 	"MMac"	varchar(50) NOT NULL,
 	"MStatus" varchar(10)
 );
+CREATE TABLE IF NOT EXISTS "T_M_Set" (
+	"MKey"	 varchar(10),
+	"MValue" varchar(10)
+);

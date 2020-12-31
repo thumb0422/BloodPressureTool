@@ -11,6 +11,8 @@ function HexToStr(src: string): string;
 
 function HexToAscII(src: string): Integer;
 
+function AscIIToHex(src: integer): string;
+
 implementation
 
 function StrToHex(src: string): string;
@@ -92,6 +94,41 @@ begin
     Inc(i, 2);
   end;
   Result := StrToInt(tmpStr)
+end;
+
+function AscIIToHex(src: integer): string;
+var
+  i: Integer;
+  srcStr: string;
+begin
+  srcStr := IntToStr(src);
+  if Length(srcStr) = 0 then
+  begin
+    srcStr := '15';
+  end
+  else if Length(srcStr) = 1 then
+  begin
+    srcStr := '00' + srcStr;
+  end
+  else if Length(srcStr) = 2 then
+  begin
+    srcStr := '0' + srcStr;
+  end
+  else if Length(srcStr) = 3 then
+  begin
+    srcStr := srcStr;
+  end
+  else
+  begin
+    srcStr := Copy(srcStr, 1, 3);
+  end;
+  for i := 1 to Length(srcStr) do
+  begin
+    if i = 1 then
+      Result := IntToHex(Ord(srcStr[1]), 2)
+    else
+      Result := Result + ' ' + IntToHex(Ord(srcStr[i]), 2);
+  end;
 end;
 
 end.

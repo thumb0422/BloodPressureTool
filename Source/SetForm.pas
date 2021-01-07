@@ -32,6 +32,7 @@ type
     procedure addBtnClick(Sender: TObject);
     procedure saveBtnClick(Sender: TObject);
     procedure delBtnClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     { Private declarations }
     procedure QryDatas;
@@ -76,6 +77,10 @@ end;
 procedure TTSetForm.FormCreate(Sender: TObject);
 begin
   self.Caption := '血压计信息录入';
+end;
+
+procedure TTSetForm.FormShow(Sender: TObject);
+begin
   QryDatas;
 end;
 

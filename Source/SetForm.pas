@@ -23,16 +23,21 @@ type
     ClientDataSet1MMac: TStringField;
     ClientDataSet1MGroup: TStringField;
     ClientDataSet1MDesc: TStringField;
+    ClientDataSet1MInterval: TStringField;
     groupEdit: TDBEdit;
     noEdit: TDBEdit;
     macEdit: TDBEdit;
     descEdit: TDBEdit;
+    intervalEdit: TDBEdit;
     delBtn: TButton;
+    intervalLabel: TLabel;
+    Label1: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure addBtnClick(Sender: TObject);
     procedure saveBtnClick(Sender: TObject);
     procedure delBtnClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure intervalEditKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
     procedure QryDatas;
@@ -92,6 +97,12 @@ begin
   QryDatas;
 end;
 
+procedure TTSetForm.intervalEditKeyPress(Sender: TObject; var Key: Char);
+begin
+  if not (Key in ['0'..'9', #8]) then
+    Key := #0;
+end;
+
 procedure TTSetForm.QryDatas;
 var
   jsonData: ISuperObject;
@@ -111,6 +122,7 @@ begin
         ClientDataSet1.FieldByName('MMac').AsString := subData['MMac'].AsString;
         ClientDataSet1.FieldByName('MGroup').AsString := subData['MGroup'].AsString;
         ClientDataSet1.FieldByName('MDesc').AsString := subData['MDesc'].AsString;
+        ClientDataSet1.FieldByName('MInterval').AsString := subData['MInterval'].AsString;
         Post;
       end;
     end;
@@ -141,6 +153,10 @@ begin
   begin
     ShowMessage('mac 不能为空');
   end
+  else if Trim(intervalEdit.Text) = '' then
+  begin
+    ShowMessage('时间间隔 不能为空');
+  end
   else
   begin
     if ClientDataSet1.Active = True then
@@ -155,7 +171,7 @@ begin
     ClientDataSet1.First;
     while not ClientDataSet1.Eof do
     begin
-      sql := Format('Insert Into T_M_Infos (MNo,MMac,MGroup,MDesc) Values (%s,%S,%s,%s)', [QuotedStr(ClientDataSet1.FieldByName('MNo').AsString), QuotedStr(ClientDataSet1.FieldByName('MMac').AsString), QuotedStr(ClientDataSet1.FieldByName('MGroup').AsString), QuotedStr(ClientDataSet1.FieldByName('MDesc').AsString)]);
+      sql := Format('Insert Into T_M_Infos (MNo,MMac,MGroup,MDesc,MInterval) Values (%s,%S,%s,%s,%s)', [QuotedStr(ClientDataSet1.FieldByName('MNo').AsString), QuotedStr(ClientDataSet1.FieldByName('MMac').AsString), QuotedStr(ClientDataSet1.FieldByName('MGroup').AsString), QuotedStr(ClientDataSet1.FieldByName('MDesc').AsString),QuotedStr(ClientDataSet1.FieldByName('MInterval').AsString)]);
       sqlList.Add(sql);
       ClientDataSet1.Next;
     end;
@@ -170,7 +186,7 @@ end;
 
 procedure TTSetForm.setBtnStatus;
 begin
-  delBtn.Enabled := (ClientDataSet1.Active) and (ClientDataSet1.RecordCount > 0);
+  delBtn.Enabled := ((ClientDataSet1.State = dsInsert) or (ClientDataSet1.State =dsEdit) ) or ((ClientDataSet1.Active) and (ClientDataSet1.RecordCount > 0));
   addBtn.Enabled := True;
   saveBtn.Enabled := (ClientDataSet1.Active);
 end;
@@ -180,6 +196,7 @@ begin
   noEdit.Enabled := isOn;
   groupEdit.Enabled:= isOn;
   macEdit.Enabled:= isOn;
+  intervalEdit.Enabled := isOn;
   descEdit.Enabled:= isOn;
 end;
 

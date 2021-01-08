@@ -197,9 +197,6 @@ object frm_SysServer: Tfrm_SysServer
       Action = act_Show
       Default = True
     end
-    object minu_set: TMenuItem
-      Action = act_set
-    end
     object N_Separator: TMenuItem
       Caption = '-'
     end
@@ -237,10 +234,6 @@ object frm_SysServer: Tfrm_SysServer
       Caption = #34880#21387#35745'(&B)'
       OnExecute = act_bpExecute
     end
-    object act_set: TAction
-      Caption = #35774#32622'(&S)'
-      OnExecute = act_setExecute
-    end
   end
   object tmr_RunTime: TTimer
     Enabled = False
@@ -252,7 +245,7 @@ object frm_SysServer: Tfrm_SysServer
     Left = 288
     Top = 16
     Bitmap = {
-      494C010104000900600010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010104000900640010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

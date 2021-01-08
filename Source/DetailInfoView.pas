@@ -3,7 +3,7 @@ unit DetailInfoView;
 interface
 
 uses
-  System.Classes, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, System.SysUtils, Vcl.Forms,
+  System.Classes, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, System.SysUtils, Vcl.Forms,Generics.Collections,
   Vcl.Menus, Winapi.Windows, System.Win.ScktComp, DetailBPModel;
 
 type
@@ -28,6 +28,7 @@ type
     procedure onPopStartClick(Sender: TObject);
     procedure onPopStopClick(Sender: TObject);
     procedure onPopQryClick(Sender: TObject);
+    procedure onPopStatusClick(Sender: TObject);
   end;
 
 implementation
@@ -47,7 +48,9 @@ begin
     Add(NewLine);
     Add(NewItem('关闭', 0, False, True, onPopStopClick, 0, 'MenuItem2'));
     Add(NewLine);
-    Add(NewItem('查看', 0, False, True, onPopQryClick, 0, 'MenuItem3'));
+    Add(NewItem('刷新', 0, False, True, onPopStatusClick, 0, 'MenuItem3'));
+    Add(NewLine);
+    Add(NewItem('查看', 0, False, True, onPopQryClick, 0, 'MenuItem4'));
   end;
 
   Self.PopupMenu := FPopMenu;
@@ -94,6 +97,24 @@ end;
 procedure TDetailInfoView.onPopStartClick(Sender: TObject);
 begin
   TDataManager.Instance.start(data);
+end;
+
+procedure TDetailInfoView.onPopStatusClick(Sender: TObject);
+var
+  macView: TDetailInfoView;
+  macModel: TDetailBPModel;
+  statusDic: TDictionary<string, TDetailBPModel>;
+begin
+  statusDic := TDataManager.Instance.bpQueue;
+  statusDic.TryGetValue(Fdata.MMac,macModel);
+  if Assigned(macModel) then
+  begin
+    reloadStatus(macModel.cStatus);
+  end
+  else
+  begin
+    reloadStatus(UnConnect);
+  end;
 end;
 
 procedure TDetailInfoView.onPopStopClick(Sender: TObject);

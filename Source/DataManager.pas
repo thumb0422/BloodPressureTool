@@ -37,6 +37,7 @@ type
     procedure start(macModel: TDetailBPModel);
     procedure stop(macModel: TDetailBPModel);
     procedure stopAll;
+    procedure startAll;
   private
     procedure bpOnLine(macModel: TDetailBPModel); //是否在线
     procedure bpSend(macModel: TDetailBPModel); //发送开始测量命令
@@ -107,7 +108,7 @@ begin
   tmpSocket := fSocketQueue.Items[macModel.MGroup];
   if Assigned(tmpSocket) and tmpSocket.Active then
   begin
-    sourceData := 'FC 0F 02 01 53 ' + macModel.MMac + ' '+ AscIIToHex(StrToInt(fTimeInterval)) + ' 03';
+    sourceData := 'FC 0F 02 01 53 ' + macModel.MMac + ' '+ AscIIToHex(StrToInt(macModel.MInterval)) + ' 03';
     strData := StringReplace(sourceData, ' ', '', [rfReplaceAll]);
     reqMemory := TMemoryStream.Create;
     reqMemory.Size := Length(strData) div 2;
@@ -458,6 +459,18 @@ begin
   end;
 end;
 
+procedure TDataManager.startAll;
+var
+  macModel: TDetailBPModel;
+  mac: string;
+begin
+  for mac in bpQueue.Keys do
+  begin
+    macModel := bpQueue.Items[mac];
+    start(macModel);
+  end;
+end;
+
 procedure TDataManager.stop(macModel: TDetailBPModel);
 var
   sql: string;
@@ -468,13 +481,15 @@ begin
   begin
     bpQueue.Clear;
   end;
-  sqlList := TStringList.Create;
+  macModel.MInterval := '0';
+  bpSetTimeInterval(macModel);
+//  sqlList := TStringList.Create;
 //  sql := Format('Delete from T_M_infos_Status where 1=1 and MMac = %s', [QuotedStr(macModel.MMac)]);
 //  sqlList.Add(sql);
-  if sqlList.Count > 0 then
-  begin
-    TDBManager.Instance.execSql(sqlList);
-  end;
+//  if sqlList.Count > 0 then
+//  begin
+//    TDBManager.Instance.execSql(sqlList);
+//  end;
 end;
 
 procedure TDataManager.stopAll;

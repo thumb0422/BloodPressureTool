@@ -150,8 +150,8 @@ end;
 procedure TTBPStatesForm.FormCreate(Sender: TObject);
 begin
   self.Caption := 'ÑªÑ¹¼Æ×´Ì¬ÁÐ±í';
-  self.Height := 1200;
-  self.Width := 1800;
+  self.Height := 800;
+  self.Width := 1200;
   fViewsDic := TDictionary<string, TDetailInfoView>.Create();
   initBPView;
 end;

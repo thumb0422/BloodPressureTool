@@ -3,8 +3,8 @@ object SystemSet: TSystemSet
   Top = 0
   BorderStyle = bsDialog
   Caption = #35774#32622
-  ClientHeight = 219
-  ClientWidth = 304
+  ClientHeight = 193
+  ClientWidth = 295
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

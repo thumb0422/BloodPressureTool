@@ -63,6 +63,7 @@ begin
     sql := Format('Insert Into T_M_Set (MKey,MValue) Values (%s,%s)', ['1000', QuotedStr(Trim(timeEdit.Text))]);
     sqlList.Add(sql);
     TDBManager.Instance.execSql(sqlList);
+    ShowMessage('±£´æ³É¹¦!');
   end;
 end;
 

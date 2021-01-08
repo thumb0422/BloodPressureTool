@@ -5,6 +5,7 @@ uses
   Forms,
   Windows,
   SysUtils,
+  MidasLib,
   WinSysServer in 'WinSysServer.pas' {frm_SysServer},
   DMWinServer in 'DMWinServer.pas' {dmWinSysServer: TDataModule},
   USysServer in 'USysServer.pas',

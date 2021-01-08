@@ -55,7 +55,7 @@ end;
 
 procedure TTDetailDataForm.FormShow(Sender: TObject);
 begin
-  Self.Caption := bpModel.MDesc + ':' + FormatDateTime('yyyy-mm-dd', now()) + '日数据查看';
+  Self.Caption := bpModel.MNo + ':' + FormatDateTime('yyyy-mm-dd', now()) + '日数据查看';
   EnableScrollBar(DBGrid1.Handle, SB_HORZ, ESB_DISABLE_BOTH);
 //  ShowScrollBar(dbgrid1.Handle,SB_HORZ,false);//去掉水平和垂直
   QryData;

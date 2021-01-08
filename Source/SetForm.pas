@@ -36,6 +36,8 @@ type
   private
     { Private declarations }
     procedure QryDatas;
+    procedure setBtnStatus;//ÉèÖÃ°´Å¥×´Ì¬
+    procedure setEditStatus(isOn:Boolean);
   public
     { Public declarations }
   end;
@@ -67,11 +69,15 @@ begin
     ClientDataSet1.Open;
   end;
   ClientDataSet1.Append;
+  setBtnStatus;
+  setEditStatus(True);
 end;
 
 procedure TTSetForm.delBtnClick(Sender: TObject);
 begin
   ClientDataSet1.Delete;
+  setBtnStatus;
+  setEditStatus(False);
 end;
 
 procedure TTSetForm.FormCreate(Sender: TObject);
@@ -81,6 +87,8 @@ end;
 
 procedure TTSetForm.FormShow(Sender: TObject);
 begin
+  setBtnStatus;
+  setEditStatus(False);
   QryDatas;
 end;
 
@@ -112,6 +120,7 @@ begin
   begin
     ClientDataSet1.Open;
   end;
+  setBtnStatus;
 end;
 
 procedure TTSetForm.saveBtnClick(Sender: TObject);
@@ -152,9 +161,26 @@ begin
     end;
     ClientDataSet1.EnableControls;
     TDBManager.Instance.execSql(sqlList);
+    setBtnStatus;
+    setEditStatus(False);
     QryDatas;
   end;
 
+end;
+
+procedure TTSetForm.setBtnStatus;
+begin
+  delBtn.Enabled := (ClientDataSet1.Active) and (ClientDataSet1.RecordCount > 0);
+  addBtn.Enabled := True;
+  saveBtn.Enabled := (ClientDataSet1.Active);
+end;
+
+procedure TTSetForm.setEditStatus(isOn: Boolean);
+begin
+  noEdit.Enabled := isOn;
+  groupEdit.Enabled:= isOn;
+  macEdit.Enabled:= isOn;
+  descEdit.Enabled:= isOn;
 end;
 
 end.

@@ -28,7 +28,9 @@ uses
   DataManager in 'DataManager.pas',
   DetailDataForm in 'DetailDataForm.pas' {TDetailDataForm},
   Tool in 'Tool.pas',
-  SystemSetForm in 'SystemSetForm.pas' {SystemSet};
+  SystemSetForm in 'SystemSetForm.pas' {SystemSet},
+  Vcl.Themes,
+  Vcl.Styles;
 
 {$R *.res}
 
@@ -37,7 +39,7 @@ uses
 begin
   if not SysServer_Installing then
   begin
-    CreateMutex(nil, True,PChar(_SysServerMutexID));// 'SCKTSRVR');
+    CreateMutex(nil, True, PChar(_SysServerMutexID)); // 'SCKTSRVR');
     if GetLastError = ERROR_ALREADY_EXISTS then
     begin
       MessageBox(0, PChar(SAlreadyRunning), _SysServerDisplayName, MB_ICONERROR);
@@ -50,15 +52,20 @@ begin
     SvcMgr.Application.Initialize;
     UserSysService := TUserSysService.CreateNew(SvcMgr.Application, 0);
     SvcMgr.Application.Title := _SysServerMainTitle;
+//    TStyleManager.TrySetStyle('Luna');
     Application.CreateForm(Tfrm_SysServer, frm_SysServer);
-  SvcMgr.Application.Run;
+    SvcMgr.Application.Run;
   end
   else
   begin
     Forms.Application.ShowMainForm := False;
     Forms.Application.Initialize;
     Forms.Application.CreateForm(Tfrm_SysServer, frm_SysServer);
+    Forms.Application.Title := 'ÑªÑ¹¼ÆÖúÊÖ';
+//    TStyleManager.TrySetStyle('Luna');
     frm_SysServer.Initialize(False);
+
+//    TStyleManager.TrySetStyle('Glossy');
     Forms.Application.Run;
   end;        {
   Application.Initialize;
@@ -71,3 +78,4 @@ begin
  // frm_Setup.SetConfig(TDBConfInfo.GetDBConfig);
   Application.Run;  }
 end.
+

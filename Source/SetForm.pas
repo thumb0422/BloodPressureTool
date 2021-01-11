@@ -38,11 +38,12 @@ type
     procedure delBtnClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure intervalEditKeyPress(Sender: TObject; var Key: Char);
+    procedure DataSource1StateChange(Sender: TObject);
   private
     { Private declarations }
     procedure QryDatas;
-    procedure setBtnStatus;//设置按钮状态
-    procedure setEditStatus(isOn:Boolean);
+    procedure setBtnStatus; //设置按钮状态
+    procedure setEditStatus(isOn: Boolean);
   public
     { Public declarations }
   end;
@@ -76,6 +77,14 @@ begin
   ClientDataSet1.Append;
   setBtnStatus;
   setEditStatus(True);
+end;
+
+procedure TTSetForm.DataSource1StateChange(Sender: TObject);
+var
+  aStatus: TDataSetState;
+begin
+  aStatus := DataSource1.State;
+//  ShowMessage(VarToStr(aStatus));
 end;
 
 procedure TTSetForm.delBtnClick(Sender: TObject);
@@ -140,30 +149,37 @@ var
   sql: string;
   sqlList: TStringList;
   I: Integer;
-begin
-  if Trim(groupEdit.Text) = '' then
+
+  function checkData: Boolean;
   begin
-    ShowMessage('IP 不能为空');
-  end
-  else if Trim(noEdit.Text) = '' then
-  begin
-    ShowMessage('编号 不能为空');
-  end
-  else if Trim(macEdit.Text) = '' then
-  begin
-    ShowMessage('mac 不能为空');
-  end
-  else if Trim(intervalEdit.Text) = '' then
-  begin
-    ShowMessage('时间间隔 不能为空');
-  end
-  else
-  begin
-    if ClientDataSet1.Active = True then
+    if Trim(groupEdit.Text) = '' then
     begin
-      if ClientDataSet1.State = dsEdit then
-        ClientDataSet1.Post;
+      ShowMessage('IP 不能为空');
+      Result := False;
+    end
+    else if Trim(noEdit.Text) = '' then
+    begin
+      ShowMessage('编号 不能为空');
+      Result := False;
+    end
+    else if Trim(macEdit.Text) = '' then
+    begin
+      ShowMessage('mac 不能为空');
+      Result := False;
+    end
+    else if Trim(intervalEdit.Text) = '' then
+    begin
+      ShowMessage('时间间隔 不能为空');
+      Result := False;
+    end
+    else
+    begin
+      Result := True;
     end;
+  end;
+
+  procedure saveData;
+  begin
     sqlList := TStringList.Create;
     sql := 'Delete from T_M_Infos where 1=1 ';
     sqlList.Add(sql);
@@ -171,7 +187,7 @@ begin
     ClientDataSet1.First;
     while not ClientDataSet1.Eof do
     begin
-      sql := Format('Insert Into T_M_Infos (MNo,MMac,MGroup,MDesc,MInterval) Values (%s,%S,%s,%s,%s)', [QuotedStr(ClientDataSet1.FieldByName('MNo').AsString), QuotedStr(ClientDataSet1.FieldByName('MMac').AsString), QuotedStr(ClientDataSet1.FieldByName('MGroup').AsString), QuotedStr(ClientDataSet1.FieldByName('MDesc').AsString),QuotedStr(ClientDataSet1.FieldByName('MInterval').AsString)]);
+      sql := Format('Insert Into T_M_Infos (MNo,MMac,MGroup,MDesc,MInterval) Values (%s,%S,%s,%s,%s)', [QuotedStr(ClientDataSet1.FieldByName('MNo').AsString), QuotedStr(ClientDataSet1.FieldByName('MMac').AsString), QuotedStr(ClientDataSet1.FieldByName('MGroup').AsString), QuotedStr(ClientDataSet1.FieldByName('MDesc').AsString), QuotedStr(ClientDataSet1.FieldByName('MInterval').AsString)]);
       sqlList.Add(sql);
       ClientDataSet1.Next;
     end;
@@ -182,22 +198,39 @@ begin
     QryDatas;
   end;
 
+begin
+  if ClientDataSet1.Active = True then
+  begin
+    if (ClientDataSet1.State = dsEdit) or (ClientDataSet1.State = dsInsert) then
+      ClientDataSet1.Post;
+  end;
+  if ClientDataSet1.RecordCount > 0 then
+  begin
+    if checkData = True then
+    begin
+      saveData;
+    end;
+  end
+  else
+  begin
+    saveData;
+  end;
 end;
 
 procedure TTSetForm.setBtnStatus;
 begin
-  delBtn.Enabled := ((ClientDataSet1.State = dsInsert) or (ClientDataSet1.State =dsEdit) ) or ((ClientDataSet1.Active) and (ClientDataSet1.RecordCount > 0));
-  addBtn.Enabled := True;
+  delBtn.Enabled := ((ClientDataSet1.State = dsInsert) or (ClientDataSet1.State = dsEdit)) or ((ClientDataSet1.Active) and (ClientDataSet1.RecordCount > 0));
+  addBtn.Enabled := (ClientDataSet1.State = dsBrowse);
   saveBtn.Enabled := (ClientDataSet1.Active);
 end;
 
 procedure TTSetForm.setEditStatus(isOn: Boolean);
 begin
   noEdit.Enabled := isOn;
-  groupEdit.Enabled:= isOn;
-  macEdit.Enabled:= isOn;
+  groupEdit.Enabled := isOn;
+  macEdit.Enabled := isOn;
   intervalEdit.Enabled := isOn;
-  descEdit.Enabled:= isOn;
+  descEdit.Enabled := isOn;
 end;
 
 end.

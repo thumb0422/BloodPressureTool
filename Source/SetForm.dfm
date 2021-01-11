@@ -232,6 +232,7 @@ object TSetForm: TTSetForm
   end
   object DataSource1: TDataSource
     DataSet = ClientDataSet1
+    OnStateChange = DataSource1StateChange
     Left = 144
     Top = 136
   end

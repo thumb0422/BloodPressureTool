@@ -56,8 +56,9 @@ var
   iLen: integer;
   tmpSocket: TClientSocket;
   reqMemory: TMemoryStream;
+  isExist:Boolean;
 begin
-  tmpSocket := fSocketQueue.Items[macModel.MGroup];
+  isExist := fSocketQueue.TryGetValue(macModel.MGroup,tmpSocket);
   if Assigned(tmpSocket) and tmpSocket.Active then
   begin
     sourceData := 'FC 0C 02 01 4F ' + macModel.MMac + ' 03';
@@ -81,7 +82,7 @@ var
   tmpSocket: TClientSocket;
   reqMemory: TMemoryStream;
 begin
-  tmpSocket := fSocketQueue.Items[macModel.MGroup];
+  fSocketQueue.TryGetValue(macModel.MGroup,tmpSocket);
   if Assigned(tmpSocket) and tmpSocket.Active then
   begin
     sourceData := 'FC 0C 02 01 4D' + macModel.MMac + '03';
@@ -105,7 +106,7 @@ var
   tmpSocket: TClientSocket;
   reqMemory: TMemoryStream;
 begin
-  tmpSocket := fSocketQueue.Items[macModel.MGroup];
+  fSocketQueue.TryGetValue(macModel.MGroup,tmpSocket);
   if Assigned(tmpSocket) and tmpSocket.Active then
   begin
     sourceData := 'FC 0F 02 01 53 ' + macModel.MMac + ' '+ AscIIToHex(StrToInt(macModel.MInterval)) + ' 03';

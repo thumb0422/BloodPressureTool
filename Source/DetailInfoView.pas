@@ -3,8 +3,9 @@ unit DetailInfoView;
 interface
 
 uses
-  System.Classes, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, System.SysUtils, Vcl.Forms,Generics.Collections,
-  Vcl.Menus, Winapi.Windows, System.Win.ScktComp, DetailBPModel;
+  System.Classes, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, System.SysUtils, Vcl.Forms,
+  Generics.Collections, Vcl.Menus, Winapi.Windows, System.Win.ScktComp,
+  DetailBPModel;
 
 type
   TBPInfoStatus = (BPInfoStatusInit, BPInfoStatusConnecting, BPInfoStatusConnected, BPInfoStatusError);
@@ -26,9 +27,14 @@ type
     procedure reloadStatus(status: ConnectStatus);
   protected
     procedure onPopStartClick(Sender: TObject);
+    procedure onPopSendClick(Sender: TObject);
     procedure onPopStopClick(Sender: TObject);
     procedure onPopQryClick(Sender: TObject);
     procedure onPopStatusClick(Sender: TObject);
+  private
+    menuItemStart, menuItemSend, menuItemStop, menuItemRefresh, menuItemQry: TMenuItem;
+    procedure reloadPopMenuStatus(status: ConnectStatus);
+    procedure PopupMenu1Popup(Sender: TObject);
   end;
 
 implementation
@@ -40,18 +46,41 @@ uses
 constructor TDetailInfoView.Create(AOwner: TComponent);
 begin
   inherited;
-
   FPopMenu := TPopupMenu.Create(Self);
-  with FPopMenu.Items do
-  begin
-    Add(NewItem('启动', 0, False, True, onPopStartClick, 0, 'MenuItem1'));
-    Add(NewLine);
-    Add(NewItem('关闭', 0, False, True, onPopStopClick, 0, 'MenuItem2'));
-    Add(NewLine);
-    Add(NewItem('刷新', 0, False, True, onPopStatusClick, 0, 'MenuItem3'));
-    Add(NewLine);
-    Add(NewItem('查看', 0, False, True, onPopQryClick, 0, 'MenuItem4'));
-  end;
+  FPopMenu.OnPopup := PopupMenu1Popup;
+
+  menuItemStart := TMenuItem.Create(FPopMenu);
+  menuItemStart.Caption := '启动';
+  menuItemStart.OnClick := onPopStartClick;
+  FPopMenu.Items.Add(menuItemStart);
+
+  FPopMenu.Items.Add(NewLine);
+
+  menuItemSend := TMenuItem.Create(FPopMenu);
+  menuItemSend.Caption := '测量';
+  menuItemSend.OnClick := onPopSendClick;
+  FPopMenu.Items.Add(menuItemSend);
+
+  FPopMenu.Items.Add(NewLine);
+
+  menuItemRefresh := TMenuItem.Create(FPopMenu);
+  menuItemRefresh.Caption := '刷新';
+  menuItemRefresh.OnClick := onPopStatusClick;
+  FPopMenu.Items.Add(menuItemRefresh);
+
+  FPopMenu.Items.Add(NewLine);
+
+  menuItemQry := TMenuItem.Create(FPopMenu);
+  menuItemQry.Caption := '查看';
+  menuItemQry.OnClick := onPopQryClick;
+  FPopMenu.Items.Add(menuItemQry);
+
+  FPopMenu.Items.Add(NewLine);
+
+  menuItemStop := TMenuItem.Create(FPopMenu);
+  menuItemStop.Caption := '停止';
+  menuItemStop.OnClick := onPopStopClick;
+  FPopMenu.Items.Add(menuItemStop);
 
   Self.PopupMenu := FPopMenu;
   descLabel := TLabel.Create(Self);
@@ -94,6 +123,11 @@ begin
   sForm.Free;
 end;
 
+procedure TDetailInfoView.onPopSendClick(Sender: TObject);
+begin
+  TDataManager.Instance.send(data);
+end;
+
 procedure TDetailInfoView.onPopStartClick(Sender: TObject);
 begin
   TDataManager.Instance.start(data);
@@ -101,12 +135,11 @@ end;
 
 procedure TDetailInfoView.onPopStatusClick(Sender: TObject);
 var
-  macView: TDetailInfoView;
   macModel: TDetailBPModel;
   statusDic: TDictionary<string, TDetailBPModel>;
 begin
   statusDic := TDataManager.Instance.bpQueue;
-  statusDic.TryGetValue(Fdata.MMac,macModel);
+  statusDic.TryGetValue(Fdata.MMac, macModel);
   if Assigned(macModel) then
   begin
     reloadStatus(macModel.cStatus);
@@ -122,6 +155,23 @@ begin
   TDataManager.Instance.stop(data);
 end;
 
+procedure TDetailInfoView.PopupMenu1Popup(Sender: TObject);
+var
+  macModel: TDetailBPModel;
+  statusDic: TDictionary<string, TDetailBPModel>;
+begin
+  statusDic := TDataManager.Instance.bpQueue;
+  statusDic.TryGetValue(Fdata.MMac, macModel);
+  if Assigned(macModel) then
+  begin
+    reloadPopMenuStatus(macModel.cStatus);
+  end
+  else
+  begin
+    reloadPopMenuStatus(UnConnect);
+  end;
+end;
+
 procedure TDetailInfoView.reloadStatus(status: ConnectStatus);
 begin
   case status of
@@ -129,11 +179,11 @@ begin
       begin
         statusLabel.Caption := '未启动';
       end;
-    Connected:
+    OnLine:
       begin
         statusLabel.Caption := '已连接';
       end;
-    OnLine:
+    OnWorking:
       begin
         statusLabel.Caption := '测量中';
       end;
@@ -144,6 +194,30 @@ procedure TDetailInfoView.Setdata(const Value: TDetailBPModel);
 begin
   Fdata := Value;
   descLabel.Caption := '血压计-' + Fdata.MNo;
+end;
+
+procedure TDetailInfoView.reloadPopMenuStatus(status: ConnectStatus);
+begin
+  case status of
+    UnConnect:
+      begin
+        menuItemStart.Enabled := True;
+        menuItemSend.Enabled := False;
+        menuItemStop.Enabled := False;
+      end;
+    OnLine:
+      begin
+        menuItemStart.Enabled := False;
+        menuItemSend.Enabled := True;
+        menuItemStop.Enabled := True;
+      end;
+    OnWorking:
+      begin
+        menuItemStart.Enabled := False;
+        menuItemSend.Enabled := True;
+        menuItemStop.Enabled := True;
+      end;
+  end;
 end;
 
 end.

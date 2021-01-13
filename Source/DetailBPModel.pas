@@ -5,7 +5,7 @@ interface
 uses
   BPModel;
 type
-  ConnectStatus = (UnConnect,Connected,OnLine);//未连接、已连接、在线
+  ConnectStatus = (UnConnect,OnLine,OnWorking);//未连接、已连接、测量中
 type
   TDetailBPModel = class(TBPModel)
   private

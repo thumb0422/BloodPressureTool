@@ -13,13 +13,9 @@ type
     ScrollBox1: TScrollBox;
     PopupMenu1: TPopupMenu;
     refreshMenu: TMenuItem;
-    allStartMenu: TMenuItem;
-    allStopMenu: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure refreshMenuClick(Sender: TObject);
-    procedure allStartMenuClick(Sender: TObject);
-    procedure allStopMenuClick(Sender: TObject);
   private
     { Private declarations }
     fViewsDic: TDictionary<string, TDetailInfoView>;
@@ -159,16 +155,6 @@ begin
       macView.reloadStatus(UnConnect);
     end;
   end;
-end;
-
-procedure TTBPStatesForm.allStartMenuClick(Sender: TObject);
-begin
-  TDataManager.Instance.startAll;
-end;
-
-procedure TTBPStatesForm.allStopMenuClick(Sender: TObject);
-begin
-  TDataManager.Instance.stopAll;
 end;
 
 procedure TTBPStatesForm.FormCreate(Sender: TObject);

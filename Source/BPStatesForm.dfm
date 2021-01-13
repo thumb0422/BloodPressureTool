@@ -24,8 +24,6 @@ object TBPStatesForm: TTBPStatesForm
     Align = alClient
     PopupMenu = PopupMenu1
     TabOrder = 0
-    ExplicitWidth = 800
-    ExplicitHeight = 600
   end
   object PopupMenu1: TPopupMenu
     Left = 488
@@ -33,16 +31,6 @@ object TBPStatesForm: TTBPStatesForm
     object refreshMenu: TMenuItem
       Caption = #20840#37096#21047#26032'(&R)'
       OnClick = refreshMenuClick
-    end
-    object allStartMenu: TMenuItem
-      Caption = #20840#37096#24320#22987'(&S)'
-      Visible = False
-      OnClick = allStartMenuClick
-    end
-    object allStopMenu: TMenuItem
-      Caption = #20840#37096#20572#27490'(&E)'
-      Visible = False
-      OnClick = allStopMenuClick
     end
   end
 end

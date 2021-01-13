@@ -20,11 +20,6 @@ CREATE TABLE IF NOT EXISTS "T_M_Infos" (
 	"MDesc"	varchar(250),
 	"MInterval" varchar(5)
 );
-CREATE TABLE IF NOT EXISTS "T_M_Infos_Status" (
-	"id"	INTEGER PRIMARY KEY AUTOINCREMENT,
-	"MMac"	varchar(50) NOT NULL,
-	"MStatus" varchar(10)
-);
 CREATE TABLE IF NOT EXISTS "T_M_Set" (
 	"MKey"	 varchar(10),
 	"MValue" varchar(10)

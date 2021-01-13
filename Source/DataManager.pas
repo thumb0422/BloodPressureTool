@@ -27,17 +27,20 @@ type
   private
     fSocketQueue: TDictionary<string, TClientSocket>;  {ipAddress:TClientSocket}
     procedure initSocket(ip: string);
-    function  getIPSbyMac(macModel: TDetailBPModel): string;
+    function getIPSbyMac(macModel: TDetailBPModel): string;
     procedure praseRspData(rsp: string);
   public
     bpQueue: TDictionary<string, TDetailBPModel>;
     procedure start(macModel: TDetailBPModel); //仅测试网络是否能够连通
-    procedure send(macModel: TDetailBPModel);//发送测量数据，通过发送自动测量数据
-    procedure stop(macModel: TDetailBPModel);//停止某对象自动接收数据，通过取消自动测量来实现
+    procedure send(macModel: TDetailBPModel); //发送测量数据，通过发送自动测量数据
+    procedure stop(macModel: TDetailBPModel); //停止某对象自动接收数据，通过取消自动测量来实现
   private
     procedure bpOnLine(macModel: TDetailBPModel); //是否在线
     procedure bpSend(macModel: TDetailBPModel); //发送开始测量命令
     procedure bpSetTimeInterval(macModel: TDetailBPModel); //设置间隔时间 , 0=代表取消自动测量
+  private
+    bpStatusTimer: TTimer; //需要检测每条命令发送到返回时间差不能超过5秒，故设置一个timer 每秒来检测数据
+    procedure statusTimerOnTimer(Sender: TObject);
   end;
 
 implementation
@@ -52,11 +55,14 @@ var
   iLen: integer;
   tmpSocket: TClientSocket;
   reqMemory: TMemoryStream;
-  isExist:Boolean;
 begin
-  isExist := fSocketQueue.TryGetValue(macModel.MGroup,tmpSocket);
+  fSocketQueue.TryGetValue(macModel.MGroup, tmpSocket);
   if Assigned(tmpSocket) and tmpSocket.Active then
   begin
+    macModel.cReqTime := GetTickCount;
+    macModel.cStatus := UnConnect;
+    macModel.cDone := False;
+    bpQueue.AddOrSetValue(macModel.MMac, macModel);
     sourceData := 'FC 0C 02 01 4F ' + macModel.MMac + ' 03';
     strData := StringReplace(sourceData, ' ', '', [rfReplaceAll]);
     reqMemory := TMemoryStream.Create;
@@ -78,9 +84,13 @@ var
   tmpSocket: TClientSocket;
   reqMemory: TMemoryStream;
 begin
-  fSocketQueue.TryGetValue(macModel.MGroup,tmpSocket);
+  fSocketQueue.TryGetValue(macModel.MGroup, tmpSocket);
   if Assigned(tmpSocket) and tmpSocket.Active then
   begin
+    macModel.cStatus := OnLine;
+    macModel.cReqTime := GetTickCount;
+    macModel.cDone := False;
+    bpQueue.AddOrSetValue(macModel.MMac, macModel);
     sourceData := 'FC 0C 02 01 4D' + macModel.MMac + '03';
     strData := StringReplace(sourceData, ' ', '', [rfReplaceAll]);
     reqMemory := TMemoryStream.Create;
@@ -101,17 +111,21 @@ var
   iLen: integer;
   tmpSocket: TClientSocket;
   reqMemory: TMemoryStream;
-  interval:string;
+  interval: string;
 begin
-  fSocketQueue.TryGetValue(macModel.MGroup,tmpSocket);
+  fSocketQueue.TryGetValue(macModel.MGroup, tmpSocket);
   if Assigned(tmpSocket) and tmpSocket.Active then
   begin
+    macModel.cStatus := OnLine;
+    macModel.cReqTime := GetTickCount;
+    macModel.cDone := False;
+    bpQueue.AddOrSetValue(macModel.MMac, macModel);
     interval := macModel.MInterval;
-    if Length(macModel.MInterval) =0 then
+    if Length(macModel.MInterval) = 0 then
     begin
       interval := '0';
     end;
-    sourceData := 'FC 0F 02 01 53 ' + macModel.MMac + ' '+ AscIIToHex(StrToInt(interval)) + ' 03';
+    sourceData := 'FC 0F 02 01 53 ' + macModel.MMac + ' ' + AscIIToHex(StrToInt(interval)) + ' 03';
     strData := StringReplace(sourceData, ' ', '', [rfReplaceAll]);
     reqMemory := TMemoryStream.Create;
     reqMemory.Size := Length(strData) div 2;
@@ -136,7 +150,6 @@ begin
     macModel := bpQueue[mMac];
     if macModel.cStatus = UnConnect then
     begin
-      bpQueue.AddOrSetValue(macModel.MMac, macModel);
       bpOnLine(macModel);
     end;
   end;
@@ -215,6 +228,11 @@ constructor TDataManager.Create;
 begin
   bpQueue := TDictionary<string, TDetailBPModel>.Create();
   fSocketQueue := TDictionary<string, TClientSocket>.Create();
+
+  bpStatusTimer := TTimer.Create(nil);
+  bpStatusTimer.Interval := 1 * 1000;
+  bpStatusTimer.OnTimer := statusTimerOnTimer;
+  bpStatusTimer.Enabled := False;
 end;
 
 destructor TDataManager.Destroy;
@@ -236,6 +254,11 @@ begin
     end;
     fSocketQueue.Clear;
     fSocketQueue.Free;
+  end;
+  if Assigned(bpStatusTimer) then
+  begin
+    bpStatusTimer.Enabled := False;
+    bpStatusTimer.Free;
   end;
   inherited;
 end;
@@ -284,7 +307,7 @@ begin
     tmpSocket.OnError := ClientSocketError;
     tmpSocket.OnRead := ClientSocketRead;
     tmpSocket.OnWrite := ClientSocketWrite;
-//    tmpSocket.ClientType := ctNonBlocking;
+    tmpSocket.ClientType := ctNonBlocking;
     try
       tmpSocket.Open;
       fSocketQueue.AddOrSetValue(ip, tmpSocket);
@@ -326,6 +349,8 @@ begin
       begin
         rspMessage := '在线命令返回';
         macModel.cStatus := OnLine;
+//        macModel.lastTime := GetTickCount;
+        macModel.cDone := True;
         bpQueue.AddOrSetValue(macModel.MMac, macModel);
         leftStr := Copy(rspStrTmp, iPos + Length(macTmp) + 2, Length(rspStrTmp) - (iPos + Length(macTmp) + 1));
       end
@@ -338,8 +363,10 @@ begin
       else if LowerCase(preStr) = '44' then
       begin
         macModel.cStatus := OnWorking;
+//        macModel.lastTime := GetTickCount;
+        macModel.cDone := True;
         bpQueue.AddOrSetValue(macModel.MMac, macModel);
-        leftStr := Copy(rspStrTmp, iPos + Length(macTmp) + 6 *3 + 2, Length(rspStrTmp) - (iPos + Length(macTmp) + 6 *3  + 1));
+        leftStr := Copy(rspStrTmp, iPos + Length(macTmp) + 6 * 3 + 2, Length(rspStrTmp) - (iPos + Length(macTmp) + 6 * 3 + 1));
         iPos := iPos + Length(macTmp);
         rspMessage := '测量数据返回';
         rspSBP := IntToStr((HexToAscII(Copy(rspStrTmp, iPos, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 2, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 4, 2))));
@@ -350,13 +377,19 @@ begin
       end
       else if LowerCase(preStr) = '53' then
       begin
-        leftStr := Copy(rspStrTmp, iPos + Length(macTmp) + 2 *3 +2, Length(rspStrTmp) - (iPos + Length(macTmp) + 2 *3 +1));
+        macModel.cStatus := OnWorking;
+//        macModel.lastTime := GetTickCount;
+        macModel.cDone := True;
+        bpQueue.AddOrSetValue(macModel.MMac, macModel);
+        leftStr := Copy(rspStrTmp, iPos + Length(macTmp) + 2 * 3 + 2, Length(rspStrTmp) - (iPos + Length(macTmp) + 2 * 3 + 1));
         rspMessage := '设置间隔命令返回';
       end
       else
       begin
         rspMessage := '未知消息';
         macModel.cStatus := UnConnect;
+//        macModel.lastTime := GetTickCount;
+        macModel.cDone := True;
         bpQueue.AddOrSetValue(macModel.MMac, macModel);
         leftStr := '';
       end;
@@ -385,10 +418,9 @@ var
 begin
   if fSocketQueue.ContainsKey(macModel.MGroup) then
   begin
-    fSocketQueue.TryGetValue(macModel.MGroup,tmpSocket);
+    fSocketQueue.TryGetValue(macModel.MGroup, tmpSocket);
     if Assigned(tmpSocket) and tmpSocket.Active then
     begin
-      bpQueue.AddOrSetValue(macModel.MMac, macModel);
       bpSetTimeInterval(macModel);
     end
     else
@@ -406,14 +438,20 @@ procedure TDataManager.start(macModel: TDetailBPModel);
 var
   tmpSocket: TClientSocket;
 begin
+  if Assigned(bpStatusTimer) then
+  begin
+    if bpStatusTimer.Enabled = False then
+    begin
+      bpStatusTimer.Enabled := True;
+    end;
+  end;
   if fSocketQueue.ContainsKey(macModel.MGroup) then
   begin
-    fSocketQueue.TryGetValue(macModel.MGroup,tmpSocket);
+    fSocketQueue.TryGetValue(macModel.MGroup, tmpSocket);
     if Assigned(tmpSocket) then
     begin
       if tmpSocket.Active then
       begin
-        bpQueue.AddOrSetValue(macModel.MMac, macModel);
         bpOnLine(macModel);
       end
       else
@@ -439,6 +477,32 @@ begin
     initSocket(macModel.MGroup);
     macModel.cStatus := UnConnect;
     bpQueue.AddOrSetValue(macModel.MMac, macModel);
+  end;
+end;
+
+procedure TDataManager.statusTimerOnTimer(Sender: TObject);
+var macModel:TDetailBPModel;
+    mMac:string;
+    timeDiff:Double;
+begin
+  for mMac in bpQueue.Keys do
+  begin
+    bpQueue.TryGetValue(mMac,macModel);
+    if Assigned(macModel) then
+    begin
+      if ((macModel.cReqTime > 0) and (macModel.cDone = False)) then
+      begin
+        timeDiff := (GetTickCount - macModel.cReqTime) / 1000;
+        if timeDiff > 5 then
+        begin
+          macModel.cStatus := UnConnect;
+          macModel.cReqTime := 0;
+          bpQueue.AddOrSetValue(macModel.MMac, macModel);
+//          stop(macModel);
+          TDLog.Instance.writeLog('命令: ip = ' + macModel.MGroup + ',mac = ' +macModel.MMac + '返回超时');
+        end;
+      end;
+    end;
   end;
 end;
 

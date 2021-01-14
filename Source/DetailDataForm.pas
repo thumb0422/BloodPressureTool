@@ -19,7 +19,7 @@ type
     ClientDataSet1MDBP: TStringField;
     ClientDataSet1MHR: TStringField;
     ClientDataSet1MMac: TStringField;
-    ClientDataSet1MDate: TDateTimeField;
+    ClientDataSet1MDate: TStringField;
     procedure refreshBtnClick(Sender: TObject);
     procedure closeBtnClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -87,7 +87,7 @@ begin
         ClientDataSet1.FieldByName('MSBP').AsString := subData['MSBP'].AsString;
         ClientDataSet1.FieldByName('MDBP').AsString := subData['MDBP'].AsString;
         ClientDataSet1.FieldByName('MHR').AsString := subData['MHR'].AsString;
-        ClientDataSet1.FieldByName('MDate').AsString := subData['MDate'].AsString;
+        ClientDataSet1.FieldByName('MDate').AsString := subData.S['MDate'];
         Post;
       end;
     end;

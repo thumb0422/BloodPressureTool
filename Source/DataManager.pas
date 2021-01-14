@@ -7,6 +7,9 @@ uses
   Vcl.ExtCtrls, DateUtils, DetailBPModel;
 
 type
+  TBPRspBlock = procedure(rspModel: TDetailBPModel) of object;
+
+type
   TDataManager = class(TObject)
   private
     class var
@@ -35,12 +38,16 @@ type
     procedure send(macModel: TDetailBPModel); //发送测量数据，通过发送自动测量数据
     procedure stop(macModel: TDetailBPModel); //停止某对象自动接收数据，通过取消自动测量来实现
   private
-    procedure bpOnLine(macModel: TDetailBPModel); //是否在线
+    procedure bpOnLine(macModel: TDetailBPModel); //是否在线命令
     procedure bpSend(macModel: TDetailBPModel); //发送开始测量命令
-    procedure bpSetTimeInterval(macModel: TDetailBPModel); //设置间隔时间 , 0=代表取消自动测量
+    procedure bpSetTimeInterval(macModel: TDetailBPModel); //设置间隔时间命令 , 0=代表取消自动测量
   private
     bpStatusTimer: TTimer; //需要检测每条命令发送到返回时间差不能超过5秒，故设置一个timer 每秒来检测数据
+    FbpRspBlock: TBPRspBlock;
     procedure statusTimerOnTimer(Sender: TObject);
+    procedure SetbpRspBlock(const Value: TBPRspBlock);
+  public
+    property bpRspBlock: TBPRspBlock read FbpRspBlock write SetbpRspBlock;
   end;
 
 implementation
@@ -63,6 +70,10 @@ begin
     macModel.cStatus := UnConnect;
     macModel.cDone := False;
     bpQueue.AddOrSetValue(macModel.MMac, macModel);
+    if Assigned(FbpRspBlock) then
+    begin
+      FbpRspBlock(macModel);
+    end;
     sourceData := 'FC 0C 02 01 4F ' + macModel.MMac + ' 03';
     strData := StringReplace(sourceData, ' ', '', [rfReplaceAll]);
     reqMemory := TMemoryStream.Create;
@@ -91,6 +102,10 @@ begin
     macModel.cReqTime := GetTickCount;
     macModel.cDone := False;
     bpQueue.AddOrSetValue(macModel.MMac, macModel);
+    if Assigned(FbpRspBlock) then
+    begin
+      FbpRspBlock(macModel);
+    end;
     sourceData := 'FC 0C 02 01 4D' + macModel.MMac + '03';
     strData := StringReplace(sourceData, ' ', '', [rfReplaceAll]);
     reqMemory := TMemoryStream.Create;
@@ -120,6 +135,10 @@ begin
     macModel.cReqTime := GetTickCount;
     macModel.cDone := False;
     bpQueue.AddOrSetValue(macModel.MMac, macModel);
+    if Assigned(FbpRspBlock) then
+    begin
+      FbpRspBlock(macModel);
+    end;
     interval := macModel.MInterval;
     if Length(macModel.MInterval) = 0 then
     begin
@@ -172,10 +191,18 @@ begin
     macModel := bpQueue.Items[mMac];
     if LowerCase(macModel.MGroup) = LowerCase(mGroup) then
     begin
-      bpQueue.Remove(macModel.MMac);
+      macModel.cStatus := UnConnect;
+      macModel.cReqTime := 0;
+      bpQueue.AddOrSetValue(macModel.MMac, macModel);
+      if Assigned(FbpRspBlock) then
+      begin
+        FbpRspBlock(macModel);
+      end;
+//      bpQueue.Remove(macModel.MMac);
     end;
   end;
-  TDLog.Instance.writeLog('Disconnect:remoteHost=' + Socket.RemoteAddress + ':' + Socket.RemotePort.ToString);
+  fSocketQueue.Remove(macModel.MGroup);
+  TDLog.Instance.writeLog('Disconnect:remoteHost=' + mGroup);
 end;
 
 procedure TDataManager.ClientSocketError(Sender: TObject; Socket: TCustomWinSocket; ErrorEvent: TErrorEvent; var ErrorCode: Integer);
@@ -190,10 +217,17 @@ begin
     macModel := bpQueue.Items[mMac];
     if LowerCase(macModel.MGroup) = LowerCase(mGroup) then
     begin
-      bpQueue.Remove(macModel.MMac);
+      macModel.cStatus := UnConnect;
+      macModel.cReqTime := 0;
+      bpQueue.AddOrSetValue(macModel.MMac, macModel);
+      if Assigned(FbpRspBlock) then
+      begin
+        FbpRspBlock(macModel);
+      end;
+//      bpQueue.Remove(macModel.MMac);
     end;
   end;
-  TDLog.Instance.writeLog('Error:ErrorCode =' + ErrorCode.ToString + ',remoteHost=' + Socket.RemoteAddress + ':' + Socket.RemotePort.ToString);
+  TDLog.Instance.writeLog('Error:remoteHost=' + mGroup);
 end;
 
 procedure TDataManager.ClientSocketRead(Sender: TObject; Socket: TCustomWinSocket);
@@ -349,10 +383,15 @@ begin
       begin
         rspMessage := '在线命令返回';
         macModel.cStatus := OnLine;
-//        macModel.lastTime := GetTickCount;
+        macModel.cReqTime := 0;
         macModel.cDone := True;
         bpQueue.AddOrSetValue(macModel.MMac, macModel);
+        if Assigned(FbpRspBlock) then
+        begin
+          FbpRspBlock(macModel);
+        end;
         leftStr := Copy(rspStrTmp, iPos + Length(macTmp) + 2, Length(rspStrTmp) - (iPos + Length(macTmp) + 1));
+
       end
       else if LowerCase(preStr) = '4D' then
       begin
@@ -363,9 +402,13 @@ begin
       else if LowerCase(preStr) = '44' then
       begin
         macModel.cStatus := OnWorking;
-//        macModel.lastTime := GetTickCount;
+        macModel.cReqTime := 0;
         macModel.cDone := True;
         bpQueue.AddOrSetValue(macModel.MMac, macModel);
+        if Assigned(FbpRspBlock) then
+        begin
+          FbpRspBlock(macModel);
+        end;
         leftStr := Copy(rspStrTmp, iPos + Length(macTmp) + 6 * 3 + 2, Length(rspStrTmp) - (iPos + Length(macTmp) + 6 * 3 + 1));
         iPos := iPos + Length(macTmp);
         rspMessage := '测量数据返回';
@@ -378,9 +421,13 @@ begin
       else if LowerCase(preStr) = '53' then
       begin
         macModel.cStatus := OnWorking;
-//        macModel.lastTime := GetTickCount;
+        macModel.cReqTime := 0;
         macModel.cDone := True;
         bpQueue.AddOrSetValue(macModel.MMac, macModel);
+        if Assigned(FbpRspBlock) then
+        begin
+          FbpRspBlock(macModel);
+        end;
         leftStr := Copy(rspStrTmp, iPos + Length(macTmp) + 2 * 3 + 2, Length(rspStrTmp) - (iPos + Length(macTmp) + 2 * 3 + 1));
         rspMessage := '设置间隔命令返回';
       end
@@ -388,9 +435,13 @@ begin
       begin
         rspMessage := '未知消息';
         macModel.cStatus := UnConnect;
-//        macModel.lastTime := GetTickCount;
+        macModel.cReqTime := 0;
         macModel.cDone := True;
         bpQueue.AddOrSetValue(macModel.MMac, macModel);
+        if Assigned(FbpRspBlock) then
+        begin
+          FbpRspBlock(macModel);
+        end;
         leftStr := '';
       end;
       TDLog.Instance.writeLog('Rsp:mac=' + mac + ',rspMessage = ' + rspMessage + ',rspBuff =' + rspStrTmp);
@@ -434,6 +485,11 @@ begin
   end;
 end;
 
+procedure TDataManager.SetbpRspBlock(const Value: TBPRspBlock);
+begin
+  FbpRspBlock := Value;
+end;
+
 procedure TDataManager.start(macModel: TDetailBPModel);
 var
   tmpSocket: TClientSocket;
@@ -459,11 +515,21 @@ begin
         try
           macModel.cStatus := UnConnect;
           bpQueue.AddOrSetValue(macModel.MMac, macModel);
+          if Assigned(FbpRspBlock) then
+          begin
+            FbpRspBlock(macModel);
+          end;
           fSocketQueue.AddOrSetValue(macModel.MGroup, tmpSocket);
           tmpSocket.Open;
         except
           on E: Exception do
           begin
+            macModel.cStatus := UnConnect;
+            bpQueue.AddOrSetValue(macModel.MMac, macModel);
+            if Assigned(FbpRspBlock) then
+            begin
+              FbpRspBlock(macModel);
+            end;
             bpQueue.Remove(macModel.MMac);
             fSocketQueue.Remove(macModel.MGroup);
             TDLog.Instance.writeLog('打开' + macModel.MGroup + '服务失败');
@@ -477,17 +543,22 @@ begin
     initSocket(macModel.MGroup);
     macModel.cStatus := UnConnect;
     bpQueue.AddOrSetValue(macModel.MMac, macModel);
+    if Assigned(FbpRspBlock) then
+    begin
+      FbpRspBlock(macModel);
+    end;
   end;
 end;
 
 procedure TDataManager.statusTimerOnTimer(Sender: TObject);
-var macModel:TDetailBPModel;
-    mMac:string;
-    timeDiff:Double;
+var
+  macModel: TDetailBPModel;
+  mMac: string;
+  timeDiff: Double;
 begin
   for mMac in bpQueue.Keys do
   begin
-    bpQueue.TryGetValue(mMac,macModel);
+    bpQueue.TryGetValue(mMac, macModel);
     if Assigned(macModel) then
     begin
       if ((macModel.cReqTime > 0) and (macModel.cDone = False)) then
@@ -499,7 +570,7 @@ begin
           macModel.cReqTime := 0;
           bpQueue.AddOrSetValue(macModel.MMac, macModel);
 //          stop(macModel);
-          TDLog.Instance.writeLog('命令: ip = ' + macModel.MGroup + ',mac = ' +macModel.MMac + '返回超时');
+          TDLog.Instance.writeLog('命令: ip = ' + macModel.MGroup + ',mac = ' + macModel.MMac + '返回超时');
         end;
       end;
     end;

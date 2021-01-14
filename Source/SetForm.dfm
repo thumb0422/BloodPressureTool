@@ -157,7 +157,7 @@ object TSetForm: TTSetForm
       ParentFont = False
     end
     object saveBtn: TButton
-      Left = 168
+      Left = 134
       Top = 376
       Width = 75
       Height = 25
@@ -166,12 +166,12 @@ object TSetForm: TTSetForm
       OnClick = saveBtnClick
     end
     object addBtn: TButton
-      Left = 6
-      Top = 376
+      Left = 31
+      Top = 345
       Width = 75
       Height = 25
       Caption = #26032#22686'(&A)'
-      TabOrder = 0
+      TabOrder = 5
       OnClick = addBtnClick
     end
     object groupEdit: TDBEdit
@@ -181,7 +181,7 @@ object TSetForm: TTSetForm
       Height = 21
       DataField = 'MGroup'
       DataSource = DataSource1
-      TabOrder = 1
+      TabOrder = 0
     end
     object noEdit: TDBEdit
       Left = 80
@@ -190,7 +190,7 @@ object TSetForm: TTSetForm
       Height = 21
       DataField = 'MNo'
       DataSource = DataSource1
-      TabOrder = 2
+      TabOrder = 1
     end
     object macEdit: TDBEdit
       Left = 80
@@ -199,7 +199,7 @@ object TSetForm: TTSetForm
       Height = 21
       DataField = 'MMac'
       DataSource = DataSource1
-      TabOrder = 3
+      TabOrder = 2
     end
     object descEdit: TDBEdit
       Left = 80
@@ -208,10 +208,10 @@ object TSetForm: TTSetForm
       Height = 21
       DataField = 'MDesc'
       DataSource = DataSource1
-      TabOrder = 5
+      TabOrder = 4
     end
     object delBtn: TButton
-      Left = 87
+      Left = 31
       Top = 376
       Width = 75
       Height = 25
@@ -226,8 +226,17 @@ object TSetForm: TTSetForm
       Height = 21
       DataField = 'MInterval'
       DataSource = DataSource1
-      TabOrder = 4
+      TabOrder = 3
       OnKeyPress = intervalEditKeyPress
+    end
+    object editBtn: TButton
+      Left = 134
+      Top = 345
+      Width = 75
+      Height = 25
+      Caption = #20462#25913'&E)'
+      TabOrder = 8
+      OnClick = editBtnClick
     end
   end
   object DataSource1: TDataSource

@@ -25,6 +25,8 @@ type
     procedure resizeBPViewsUI;
   public
     { Public declarations }
+  private
+    procedure onBPRsp(rspModel: TDetailBPModel);
   end;
 
 procedure CreateBPStatesWinForm;
@@ -36,6 +38,9 @@ implementation
 
 uses
   HDBManager, superobject, DataManager;
+
+var
+  fDataManager: TDataManager;
 {$R *.dfm}
 
 procedure CreateBPStatesWinForm;
@@ -73,11 +78,24 @@ begin
       bpModel.MMac := subData.S['MMac'];
       bpModel.MGroup := subData.S['MGroup'];
       bpModel.MDesc := subData.S['MDesc'];
+      bpModel.MInterval := subData.S['MInterval'];
       bpInfoArray[n] := bpModel;
       n := n + 1;
     end;
   end;
   resizeBPViewsUI;
+end;
+
+procedure TTBPStatesForm.onBPRsp(rspModel: TDetailBPModel);
+var
+  macView: TDetailInfoView;
+  mac: string;
+begin
+  fViewsDic.TryGetValue(rspModel.MMac, macView);
+  if Assigned(macView) then
+  begin
+    macView.reloadStatus(rspModel.cStatus);
+  end;
 end;
 
 procedure TTBPStatesForm.refreshMenuClick(Sender: TObject);
@@ -141,7 +159,7 @@ var
   mac: string;
   statusDic: TDictionary<string, TDetailBPModel>;
 begin
-  statusDic := TDataManager.Instance.bpQueue;
+  statusDic := fDataManager.bpQueue;
   for mac in fViewsDic.Keys do
   begin
     macView := fViewsDic[mac];
@@ -163,6 +181,8 @@ begin
   self.Height := 800;
   self.Width := 1200;
   fViewsDic := TDictionary<string, TDetailInfoView>.Create();
+  fDataManager := TDataManager.Instance;
+  fDataManager.bpRspBlock := onBPRsp;
   initBPViews;
 end;
 

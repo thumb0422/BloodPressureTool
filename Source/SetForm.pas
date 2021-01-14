@@ -32,6 +32,7 @@ type
     delBtn: TButton;
     intervalLabel: TLabel;
     Label1: TLabel;
+    editBtn: TButton;
     procedure FormCreate(Sender: TObject);
     procedure addBtnClick(Sender: TObject);
     procedure saveBtnClick(Sender: TObject);
@@ -39,6 +40,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure intervalEditKeyPress(Sender: TObject; var Key: Char);
     procedure DataSource1StateChange(Sender: TObject);
+    procedure editBtnClick(Sender: TObject);
   private
     { Private declarations }
     procedure QryDatas;
@@ -92,6 +94,15 @@ begin
   ClientDataSet1.Delete;
   setBtnStatus;
   setEditStatus(False);
+end;
+
+procedure TTSetForm.editBtnClick(Sender: TObject);
+begin
+  if ClientDataSet1.Active then
+  begin
+    ClientDataSet1.Edit;
+    setEditStatus(True);
+  end;
 end;
 
 procedure TTSetForm.FormCreate(Sender: TObject);

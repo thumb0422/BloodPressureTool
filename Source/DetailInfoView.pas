@@ -32,7 +32,7 @@ type
     procedure onPopQryClick(Sender: TObject);
     procedure onPopStatusClick(Sender: TObject);
   private
-    menuItemStart, menuItemSend, menuItemStop, menuItemRefresh, menuItemQry: TMenuItem;
+    menuItemStart, menuItemSend, menuItemStop, menuItemQry: TMenuItem;
     procedure reloadPopMenuStatus(status: ConnectStatus);
     procedure PopupMenu1Popup(Sender: TObject);
   end;
@@ -60,13 +60,6 @@ begin
   menuItemSend.Caption := '²âÁ¿';
   menuItemSend.OnClick := onPopSendClick;
   FPopMenu.Items.Add(menuItemSend);
-
-  FPopMenu.Items.Add(NewLine);
-
-  menuItemRefresh := TMenuItem.Create(FPopMenu);
-  menuItemRefresh.Caption := 'Ë¢ÐÂ';
-  menuItemRefresh.OnClick := onPopStatusClick;
-  FPopMenu.Items.Add(menuItemRefresh);
 
   FPopMenu.Items.Add(NewLine);
 

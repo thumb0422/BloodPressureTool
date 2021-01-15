@@ -30,7 +30,8 @@ uses
   Tool in 'Tool.pas',
   SystemSetForm in 'SystemSetForm.pas' {SystemSet},
   Vcl.Themes,
-  Vcl.Styles;
+  Vcl.Styles,
+  BPIntervalForm in 'BPIntervalForm.pas' {BPIntervalSetForm};
 
 {$R *.res}
 
@@ -54,7 +55,8 @@ begin
     SvcMgr.Application.Title := _SysServerMainTitle;
 //    TStyleManager.TrySetStyle('Luna');
     Application.CreateForm(Tfrm_SysServer, frm_SysServer);
-    SvcMgr.Application.Run;
+  Application.CreateForm(TBPIntervalSetForm, BPIntervalSetForm);
+  SvcMgr.Application.Run;
   end
   else
   begin

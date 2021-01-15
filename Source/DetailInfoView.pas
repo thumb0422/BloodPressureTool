@@ -28,11 +28,12 @@ type
   protected
     procedure onPopStartClick(Sender: TObject);
     procedure onPopSendClick(Sender: TObject);
+    procedure onPopIntervalClick(Sender: TObject);
     procedure onPopStopClick(Sender: TObject);
     procedure onPopQryClick(Sender: TObject);
     procedure onPopStatusClick(Sender: TObject);
   private
-    menuItemStart, menuItemSend, menuItemStop, menuItemQry: TMenuItem;
+    menuItemStart, menuItemSend,menuItemInterval, menuItemStop, menuItemQry: TMenuItem;
     procedure reloadPopMenuStatus(status: ConnectStatus);
     procedure PopupMenu1Popup(Sender: TObject);
   end;
@@ -40,7 +41,7 @@ type
 implementation
 
 uses
-  HDBManager, superobject, TLog, DetailDataForm, DataManager;
+  HDBManager, superobject, TLog, DetailDataForm, DataManager,BPIntervalForm;
 { TDetailInfoView }
 
 constructor TDetailInfoView.Create(AOwner: TComponent);
@@ -60,6 +61,13 @@ begin
   menuItemSend.Caption := '测量';
   menuItemSend.OnClick := onPopSendClick;
   FPopMenu.Items.Add(menuItemSend);
+
+  FPopMenu.Items.Add(NewLine);
+
+  menuItemInterval := TMenuItem.Create(FPopMenu);
+  menuItemInterval.Caption := '设置测量间隔';
+  menuItemInterval.OnClick := onPopIntervalClick;
+  FPopMenu.Items.Add(menuItemInterval);
 
   FPopMenu.Items.Add(NewLine);
 
@@ -104,6 +112,16 @@ begin
   if Assigned(descLabel) then
     descLabel.Free;
   inherited;
+end;
+
+procedure TDetailInfoView.onPopIntervalClick(Sender: TObject);
+var
+  sForm: TBPIntervalSetForm;
+begin
+  sForm := TBPIntervalSetForm.Create(Application);
+  sForm.macModel := data;
+  sForm.ShowModal;
+  sForm.Free;
 end;
 
 procedure TDetailInfoView.onPopQryClick(Sender: TObject);

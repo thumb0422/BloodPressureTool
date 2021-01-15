@@ -28,17 +28,14 @@ type
     noEdit: TDBEdit;
     macEdit: TDBEdit;
     descEdit: TDBEdit;
-    intervalEdit: TDBEdit;
     delBtn: TButton;
-    intervalLabel: TLabel;
-    Label1: TLabel;
     editBtn: TButton;
     procedure FormCreate(Sender: TObject);
     procedure addBtnClick(Sender: TObject);
     procedure saveBtnClick(Sender: TObject);
     procedure delBtnClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure intervalEditKeyPress(Sender: TObject; var Key: Char);
+//    procedure intervalEditKeyPress(Sender: TObject; var Key: Char);
     procedure DataSource1StateChange(Sender: TObject);
     procedure editBtnClick(Sender: TObject);
   private
@@ -86,7 +83,6 @@ var
   aStatus: TDataSetState;
 begin
   aStatus := DataSource1.State;
-//  ShowMessage(VarToStr(aStatus));
 end;
 
 procedure TTSetForm.delBtnClick(Sender: TObject);
@@ -117,11 +113,11 @@ begin
   QryDatas;
 end;
 
-procedure TTSetForm.intervalEditKeyPress(Sender: TObject; var Key: Char);
-begin
-  if not (Key in ['0'..'9', #8]) then
-    Key := #0;
-end;
+//procedure TTSetForm.intervalEditKeyPress(Sender: TObject; var Key: Char);
+//begin
+//  if not (Key in ['0'..'9', #8]) then
+//    Key := #0;
+//end;
 
 procedure TTSetForm.QryDatas;
 var
@@ -176,11 +172,6 @@ var
     else if Trim(macEdit.Text) = '' then
     begin
       ShowMessage('mac 不能为空');
-      Result := False;
-    end
-    else if Trim(intervalEdit.Text) = '' then
-    begin
-      ShowMessage('时间间隔 不能为空');
       Result := False;
     end
     else
@@ -240,7 +231,6 @@ begin
   noEdit.Enabled := isOn;
   groupEdit.Enabled := isOn;
   macEdit.Enabled := isOn;
-  intervalEdit.Enabled := isOn;
   descEdit.Enabled := isOn;
 end;
 

@@ -30,12 +30,13 @@ type
   private
     fSocketQueue: TDictionary<string, TClientSocket>;  {ipAddress:TClientSocket}
     procedure initSocket(ip: string);
-    function getIPSbyMac(macModel: TDetailBPModel): string;
+    function getMacmodelbyMac(mac: string): TDetailBPModel;
     procedure praseRspData(rsp: string);
   public
     bpQueue: TDictionary<string, TDetailBPModel>;
     procedure start(macModel: TDetailBPModel); //仅测试网络是否能够连通
-    procedure send(macModel: TDetailBPModel); //发送测量数据，通过发送自动测量数据
+    procedure send(macModel: TDetailBPModel); //发送测量数据
+    procedure setInterval(macModel: TDetailBPModel); //发送测量间隔命令
     procedure stop(macModel: TDetailBPModel); //停止某对象自动接收数据，通过取消自动测量来实现
   private
     procedure bpOnLine(macModel: TDetailBPModel); //是否在线命令
@@ -304,23 +305,28 @@ begin
   Result := FInstance;
 end;
 
-function TDataManager.getIPSbyMac(macModel: TDetailBPModel): string;
+function TDataManager.getMacmodelbyMac(mac: string): TDetailBPModel;
 var
   jsonData: ISuperObject;
   subData: ISuperObject;
-  group: string;
   sql: string;
+  macModel:TDetailBPModel;
 begin
-  sql := Format('Select * From T_M_Infos where 1=1 and mac = %@ ', [QuotedStr(macModel.MMac)]);
+  sql := Format('Select * From T_M_Infos where 1=1 and MMac = %s ', [QuotedStr(mac)]);
   jsonData := TDBManager.Instance.getDataBySql(sql);
   if jsonData.I['rowCount'] > 0 then
   begin
     for subData in jsonData['data'] do
     begin
-      group := subData.S['MGroup'];
+      macModel := TDetailBPModel.Create;
+      macModel.MNo:= subData['MNo'].AsString;
+      macModel.MMac:= subData['MMac'].AsString;
+      macModel.MGroup:= subData['MGroup'].AsString;
+      macModel.MDesc:= subData['MDesc'].AsString;
+      macModel.MInterval:= subData['MInterval'].AsString;
     end;
   end;
-  Result := group;
+  Result := macModel;
 end;
 
 procedure TDataManager.initSocket(ip: string);
@@ -381,7 +387,7 @@ begin
       preStr := Copy(rspStrTmp, iPos - 2, 2);
       if LowerCase(preStr) = '4f' then
       begin
-        rspMessage := '在线命令返回';
+        rspMessage := preStr + '无线血压计在线命令返回';
         macModel.cStatus := OnLine;
         macModel.cReqTime := 0;
         macModel.cDone := True;
@@ -391,12 +397,19 @@ begin
           FbpRspBlock(macModel);
         end;
         leftStr := Copy(rspStrTmp, iPos + Length(macTmp) + 2, Length(rspStrTmp) - (iPos + Length(macTmp) + 1));
-
       end
       else if LowerCase(preStr) = '4D' then
       begin
-        rspMessage := '开始测量命令返回';
-        bpSend(macModel);
+        rspMessage := preStr + '开始测量命令返回';
+        macModel.cStatus := OnLine;
+        macModel.cReqTime := 0;
+        macModel.cDone := True;
+        bpQueue.AddOrSetValue(macModel.MMac, macModel);
+        if Assigned(FbpRspBlock) then
+        begin
+          FbpRspBlock(macModel);
+        end;
+//        bpSend(macModel);
         leftStr := Copy(rspStrTmp, iPos + Length(macTmp) + 2, Length(rspStrTmp) - (iPos + Length(macTmp) + 1));
       end
       else if LowerCase(preStr) = '44' then
@@ -411,7 +424,7 @@ begin
         end;
         leftStr := Copy(rspStrTmp, iPos + Length(macTmp) + 6 * 3 + 2, Length(rspStrTmp) - (iPos + Length(macTmp) + 6 * 3 + 1));
         iPos := iPos + Length(macTmp);
-        rspMessage := '测量数据返回';
+        rspMessage := preStr + '测量数据返回';
         rspSBP := IntToStr((HexToAscII(Copy(rspStrTmp, iPos, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 2, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 4, 2))));
         rspDBP := IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 6, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 8, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 10, 2))));
         rspHR := IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 12, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 14, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 16, 2))));
@@ -429,7 +442,7 @@ begin
           FbpRspBlock(macModel);
         end;
         leftStr := Copy(rspStrTmp, iPos + Length(macTmp) + 2 * 3 + 2, Length(rspStrTmp) - (iPos + Length(macTmp) + 2 * 3 + 1));
-        rspMessage := '设置间隔命令返回';
+        rspMessage := preStr + '设置间隔命令返回';
       end
       else
       begin
@@ -472,7 +485,7 @@ begin
     fSocketQueue.TryGetValue(macModel.MGroup, tmpSocket);
     if Assigned(tmpSocket) and tmpSocket.Active then
     begin
-      bpSetTimeInterval(macModel);
+      bpSend(macModel);
     end
     else
     begin
@@ -550,6 +563,38 @@ begin
   end;
 end;
 
+procedure TDataManager.setInterval(macModel: TDetailBPModel);
+var
+  tmpSocket: TClientSocket;
+  macModelTmp:TDetailBPModel;
+begin
+  if fSocketQueue.ContainsKey(macModel.MGroup) then
+  begin
+    fSocketQueue.TryGetValue(macModel.MGroup, tmpSocket);
+    if Assigned(tmpSocket) and tmpSocket.Active and (macModel.cStatus = OnLine) then
+    begin
+      macModelTmp := getMacmodelbyMac(macModel.MMac);
+      if Assigned(macModelTmp) then
+      begin
+        macModel.MInterval := macModelTmp.MInterval;
+      end
+      else
+      begin
+        macModel.MInterval := '0';
+      end;
+      bpSetTimeInterval(macModel);
+    end
+    else
+    begin
+      start(macModel);
+    end;
+  end
+  else
+  begin
+    start(macModel);
+  end;
+end;
+
 procedure TDataManager.statusTimerOnTimer(Sender: TObject);
 var
   macModel: TDetailBPModel;
@@ -569,6 +614,10 @@ begin
           macModel.cStatus := UnConnect;
           macModel.cReqTime := 0;
           bpQueue.AddOrSetValue(macModel.MMac, macModel);
+          if Assigned(FbpRspBlock) then
+          begin
+            FbpRspBlock(macModel);
+          end;
 //          stop(macModel);
           TDLog.Instance.writeLog('命令: ip = ' + macModel.MGroup + ',mac = ' + macModel.MMac + '返回超时');
         end;
@@ -582,13 +631,19 @@ var
   sql: string;
   sqlList: TStringList;
 begin
-  bpQueue.Remove(macModel.MMac);
+  macModel.cStatus := UnConnect;
+  if Assigned(FbpRspBlock) then
+  begin
+    FbpRspBlock(macModel);
+  end;
+  macModel.MInterval := '0';
+  bpSetTimeInterval(macModel);
+//  bpQueue.Remove(macModel.MMac);
   if bpQueue.Keys.Count = 0 then
   begin
     bpQueue.Clear;
   end;
-  macModel.MInterval := '0';
-  bpSetTimeInterval(macModel);
+
 end;
 
 end.

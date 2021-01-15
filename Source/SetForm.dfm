@@ -59,8 +59,7 @@ object TSetForm: TTSetForm
         Expanded = False
         FieldName = 'MInterval'
         Title.Caption = #38388#38548#26102#38388
-        Width = 60
-        Visible = True
+        Visible = False
       end
       item
         Expanded = False
@@ -119,7 +118,7 @@ object TSetForm: TTSetForm
     end
     object descLabel: TLabel
       Left = 12
-      Top = 305
+      Top = 241
       Width = 39
       Height = 14
       Caption = #22791#27880#65306
@@ -130,48 +129,22 @@ object TSetForm: TTSetForm
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object intervalLabel: TLabel
-      Left = 12
-      Top = 232
-      Width = 65
-      Height = 14
-      Caption = #38388#38548#26102#38388#65306
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object Label1: TLabel
-      Left = 200
-      Top = 231
-      Width = 30
-      Height = 16
-      Caption = #20998#38047
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -13
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
     object saveBtn: TButton
       Left = 134
-      Top = 376
+      Top = 336
       Width = 75
       Height = 25
       Caption = #20445#23384'(&S)'
-      TabOrder = 6
+      TabOrder = 5
       OnClick = saveBtnClick
     end
     object addBtn: TButton
       Left = 31
-      Top = 345
+      Top = 305
       Width = 75
       Height = 25
       Caption = #26032#22686'(&A)'
-      TabOrder = 5
+      TabOrder = 4
       OnClick = addBtnClick
     end
     object groupEdit: TDBEdit
@@ -203,39 +176,29 @@ object TSetForm: TTSetForm
     end
     object descEdit: TDBEdit
       Left = 80
-      Top = 303
+      Top = 239
       Width = 153
       Height = 21
       DataField = 'MDesc'
       DataSource = DataSource1
-      TabOrder = 4
+      TabOrder = 3
     end
     object delBtn: TButton
       Left = 31
-      Top = 376
+      Top = 336
       Width = 75
       Height = 25
       Caption = #21024#38500'(&D)'
-      TabOrder = 7
+      TabOrder = 6
       OnClick = delBtnClick
-    end
-    object intervalEdit: TDBEdit
-      Left = 80
-      Top = 230
-      Width = 114
-      Height = 21
-      DataField = 'MInterval'
-      DataSource = DataSource1
-      TabOrder = 3
-      OnKeyPress = intervalEditKeyPress
     end
     object editBtn: TButton
       Left = 134
-      Top = 345
+      Top = 305
       Width = 75
       Height = 25
       Caption = #20462#25913'&E)'
-      TabOrder = 8
+      TabOrder = 7
       OnClick = editBtnClick
     end
   end

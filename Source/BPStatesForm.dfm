@@ -24,6 +24,7 @@ object TBPStatesForm: TTBPStatesForm
     Align = alClient
     PopupMenu = PopupMenu1
     TabOrder = 0
+    OnMouseWheel = ScrollBox1MouseWheel
   end
   object PopupMenu1: TPopupMenu
     Left = 488

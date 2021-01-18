@@ -16,6 +16,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure refreshMenuClick(Sender: TObject);
+    procedure ScrollBox1MouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
   private
     { Private declarations }
     fViewsDic: TDictionary<string, TDetailInfoView>;
@@ -152,6 +153,14 @@ begin
   end;
 end;
 
+procedure TTBPStatesForm.ScrollBox1MouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+begin
+//  if WheelDelta < 0 then
+//    SendMessage(scrollBox1.Handle, WM_VSCROLL, SB_LINEDOWN, 0) //向下滚
+//  else
+//    SendMessage(scrollBox1.Handle, WM_VSCROLL, SB_LINEUP, 0); //向上滚
+end;
+
 procedure TTBPStatesForm.refreshBPViewsStatus;
 var
   macView: TDetailInfoView;
@@ -178,8 +187,8 @@ end;
 procedure TTBPStatesForm.FormCreate(Sender: TObject);
 begin
   self.Caption := '血压计状态列表';
-  self.Height := 800;
-  self.Width := 1200;
+  self.BorderStyle := bsSizeable;
+  SetBounds(Round(Screen.Width / 10.0), Round(Screen.Height / 10.0), Round(Screen.Width * 0.7), Round(Screen.Height * 0.7));
   fViewsDic := TDictionary<string, TDetailInfoView>.Create();
   fDataManager := TDataManager.Instance;
   fDataManager.bpRspBlock := onBPRsp;

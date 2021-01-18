@@ -44,8 +44,10 @@ type
     procedure bpSetTimeInterval(macModel: TDetailBPModel); //设置间隔时间命令 , 0=代表取消自动测量
   private
     bpStatusTimer: TTimer; //需要检测每条命令发送到返回时间差不能超过5秒，故设置一个timer 每秒来检测数据
+    bpHeartTimer: TTimer; //心跳包  15秒
     FbpRspBlock: TBPRspBlock;
     procedure statusTimerOnTimer(Sender: TObject);
+    procedure heartTimerOnTimer(Sender: TObject);  //解决设备断电后 前端不能有效发现该状态，故通过发送是否在线命令  类似于心跳包
     procedure SetbpRspBlock(const Value: TBPRspBlock);
   public
     property bpRspBlock: TBPRspBlock read FbpRspBlock write SetbpRspBlock;
@@ -268,6 +270,11 @@ begin
   bpStatusTimer.Interval := 1 * 1000;
   bpStatusTimer.OnTimer := statusTimerOnTimer;
   bpStatusTimer.Enabled := False;
+
+  bpHeartTimer := TTimer.Create(nil);
+  bpHeartTimer.Interval := 15 * 1000;
+  bpHeartTimer.OnTimer := heartTimerOnTimer;
+  bpHeartTimer.Enabled := False;
 end;
 
 destructor TDataManager.Destroy;
@@ -310,7 +317,7 @@ var
   jsonData: ISuperObject;
   subData: ISuperObject;
   sql: string;
-  macModel:TDetailBPModel;
+  macModel: TDetailBPModel;
 begin
   sql := Format('Select * From T_M_Infos where 1=1 and MMac = %s ', [QuotedStr(mac)]);
   jsonData := TDBManager.Instance.getDataBySql(sql);
@@ -319,14 +326,57 @@ begin
     for subData in jsonData['data'] do
     begin
       macModel := TDetailBPModel.Create;
-      macModel.MNo:= subData['MNo'].AsString;
-      macModel.MMac:= subData['MMac'].AsString;
-      macModel.MGroup:= subData['MGroup'].AsString;
-      macModel.MDesc:= subData['MDesc'].AsString;
-      macModel.MInterval:= subData['MInterval'].AsString;
+      macModel.MNo := subData['MNo'].AsString;
+      macModel.MMac := subData['MMac'].AsString;
+      macModel.MGroup := subData['MGroup'].AsString;
+      macModel.MDesc := subData['MDesc'].AsString;
+      macModel.MInterval := subData['MInterval'].AsString;
     end;
   end;
   Result := macModel;
+end;
+
+procedure TDataManager.heartTimerOnTimer(Sender: TObject);
+var
+  macModel: TDetailBPModel;
+  mMac: string;
+  sourceData, strData: string;
+  iLen: integer;
+  tmpSocket: TClientSocket;
+  reqMemory: TMemoryStream;
+begin
+  for mMac in bpQueue.Keys do
+  begin
+    bpQueue.TryGetValue(mMac, macModel);
+    if Assigned(macModel) then
+    begin
+      fSocketQueue.TryGetValue(macModel.MGroup, tmpSocket);
+      if Assigned(tmpSocket) and tmpSocket.Active and (macModel.cStatus > UnConnect) and (macModel.cDone = True) then
+      begin
+        macModel.cReqTime := GetTickCount;
+        macModel.cStatus := UnConnect;
+        macModel.cDone := False;
+        sourceData := 'FC 0C 02 01 4F ' + macModel.MMac + ' 03';
+        strData := StringReplace(sourceData, ' ', '', [rfReplaceAll]);
+        reqMemory := TMemoryStream.Create;
+        reqMemory.Size := Length(strData) div 2;
+        iLen := HexToBin(PChar(strData), reqMemory.Memory, reqMemory.Size);
+        tmpSocket.Socket.SendStream(reqMemory);
+        TDLog.Instance.writeLog('Req:mac=' + macModel.MMac + ',sendBuff =' + sourceData + ',发送心跳包');
+      end
+      else
+      begin
+        macModel.cReqTime := GetTickCount;
+        macModel.cStatus := UnConnect;
+        macModel.cDone := True;
+      end;
+      bpQueue.AddOrSetValue(macModel.MMac, macModel);
+      if Assigned(FbpRspBlock) then
+      begin
+        FbpRspBlock(macModel);
+      end;
+    end;
+  end;
 end;
 
 procedure TDataManager.initSocket(ip: string);
@@ -514,6 +564,13 @@ begin
       bpStatusTimer.Enabled := True;
     end;
   end;
+  if Assigned(bpHeartTimer) then
+  begin
+    if bpHeartTimer.Enabled = False then
+    begin
+      bpHeartTimer.Enabled := True;
+    end;
+  end;
   if fSocketQueue.ContainsKey(macModel.MGroup) then
   begin
     fSocketQueue.TryGetValue(macModel.MGroup, tmpSocket);
@@ -566,7 +623,7 @@ end;
 procedure TDataManager.setInterval(macModel: TDetailBPModel);
 var
   tmpSocket: TClientSocket;
-  macModelTmp:TDetailBPModel;
+  macModelTmp: TDetailBPModel;
 begin
   if fSocketQueue.ContainsKey(macModel.MGroup) then
   begin
@@ -632,11 +689,12 @@ var
   sqlList: TStringList;
 begin
   macModel.cStatus := UnConnect;
+  macModel.MInterval := '0';
+  bpQueue.AddOrSetValue(macModel.MMac, macModel);
   if Assigned(FbpRspBlock) then
   begin
     FbpRspBlock(macModel);
   end;
-  macModel.MInterval := '0';
   bpSetTimeInterval(macModel);
 //  bpQueue.Remove(macModel.MMac);
   if bpQueue.Keys.Count = 0 then

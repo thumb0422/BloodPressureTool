@@ -4,7 +4,7 @@ object TDetailDataForm: TTDetailDataForm
   BorderStyle = bsDialog
   Caption = #24403#26085#25968#25454#26597#30475
   ClientHeight = 531
-  ClientWidth = 475
+  ClientWidth = 487
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,11 +20,11 @@ object TDetailDataForm: TTDetailDataForm
   object Panel1: TPanel
     Left = 0
     Top = 481
-    Width = 475
+    Width = 487
     Height = 50
     Align = alBottom
     TabOrder = 0
-    ExplicitWidth = 454
+    ExplicitWidth = 475
     object refreshBtn: TButton
       Left = 120
       Top = 16
@@ -47,14 +47,14 @@ object TDetailDataForm: TTDetailDataForm
   object DBGrid1: TDBGrid
     Left = 0
     Top = 0
-    Width = 475
+    Width = 487
     Height = 481
     Align = alClient
     DataSource = DataSource1
     DrawingStyle = gdsGradient
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -11
+    Font.Height = -16
     Font.Name = 'Tahoma'
     Font.Style = []
     ParentFont = False
@@ -67,35 +67,31 @@ object TDetailDataForm: TTDetailDataForm
     TitleFont.Style = []
     Columns = <
       item
-        Alignment = taRightJustify
         Expanded = False
         FieldName = 'MDBP'
-        Title.Caption = 'DBP'
+        Title.Caption = #25910#32553#21387
         Width = 100
         Visible = True
       end
       item
-        Alignment = taRightJustify
         Expanded = False
         FieldName = 'MSBP'
-        Title.Caption = 'SBP'
+        Title.Caption = #33298#24352#21387
         Width = 100
         Visible = True
       end
       item
-        Alignment = taRightJustify
         Expanded = False
         FieldName = 'MHR'
-        Title.Caption = 'HR'
+        Title.Caption = #24515#29575
         Width = 100
         Visible = True
       end
       item
-        Alignment = taRightJustify
         Expanded = False
         FieldName = 'MDate'
         Title.Caption = #26102#38388
-        Width = 120
+        Width = 140
         Visible = True
       end>
   end

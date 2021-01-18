@@ -215,18 +215,21 @@ begin
         menuItemStart.Enabled := True;
         menuItemSend.Enabled := False;
         menuItemStop.Enabled := False;
+        menuItemInterval.Enabled := False;
       end;
     OnLine:
       begin
         menuItemStart.Enabled := False;
         menuItemSend.Enabled := True;
         menuItemStop.Enabled := True;
+        menuItemInterval.Enabled := True;
       end;
     OnWorking:
       begin
         menuItemStart.Enabled := False;
         menuItemSend.Enabled := True;
         menuItemStop.Enabled := True;
+        menuItemInterval.Enabled := True;
       end;
   end;
 end;

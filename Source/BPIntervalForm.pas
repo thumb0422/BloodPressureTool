@@ -40,7 +40,7 @@ var
   subData: ISuperObject;
   sql: string;
 begin
-  self.Caption :=  '血压计-' + macModel.MNo;
+  self.Caption := '血压计-' + macModel.MNo;
   sql := Format('Select * from T_M_Infos where 1=1 and MMac = %s ', [QuotedStr(macModel.MMac)]);
   jsonData := TDBManager.Instance.getDataBySql(sql);
   if jsonData.I['rowCount'] > 0 then
@@ -69,13 +69,18 @@ begin
   end
   else
   begin
-    sqlList := TStringList.Create;
-    sql := Format('Delete from T_M_Infos where 1=1 and MMac = %s ', [QuotedStr(macModel.MMac)]);
-    sqlList.Add(sql);
-    sql := Format('Insert Into T_M_Infos (MNo,MMac,MGroup,MDesc,MInterval) Values (%s,%S,%s,%s,%s)', [QuotedStr(macModel.MNo), QuotedStr(macModel.MMac), QuotedStr(macModel.MGroup), QuotedStr(macModel.MDesc), QuotedStr(IntervalEdit.Text)]);
-    sqlList.Add(sql);
-    TDBManager.Instance.execSql(sqlList);
-    TDataManager.Instance.setInterval(macModel);
+    try
+      sqlList := TStringList.Create;
+      sql := Format('Delete from T_M_Infos where 1=1 and MMac = %s ', [QuotedStr(macModel.MMac)]);
+      sqlList.Add(sql);
+      sql := Format('Insert Into T_M_Infos (MNo,MMac,MGroup,MDesc,MInterval) Values (%s,%S,%s,%s,%s)', [QuotedStr(macModel.MNo), QuotedStr(macModel.MMac), QuotedStr(macModel.MGroup), QuotedStr(macModel.MDesc), QuotedStr(IntervalEdit.Text)]);
+      sqlList.Add(sql);
+      TDBManager.Instance.execSql(sqlList);
+      TDataManager.Instance.setInterval(macModel);
+    finally
+      Application.MessageBox('保存完成', PChar('测量间隔保存'), MB_OK + MB_ICONINFORMATION);
+      Close;
+    end;
   end;
 end;
 

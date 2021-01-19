@@ -143,10 +143,6 @@ begin
       FbpRspBlock(macModel);
     end;
     interval := macModel.MInterval;
-    if Length(macModel.MInterval) = 0 then
-    begin
-      interval := '0';
-    end;
     sourceData := 'FC 0F 02 01 53 ' + macModel.MMac + ' ' + AscIIToHex(StrToInt(interval)) + ' 03';
     strData := StringReplace(sourceData, ' ', '', [rfReplaceAll]);
     reqMemory := TMemoryStream.Create;
@@ -424,6 +420,7 @@ var
   rspSBP, rspDBP, rspHR: string;
   macModel: TDetailBPModel;
   leftStr: string; //解析完一次剩下的数据
+  leftStrTmp:string;//用于存储发送测量间隔的命令,用来区分000 与非000
 begin
   rspStrTmp := rsp;
   sqlList := TStringList.Create;
@@ -475,15 +472,36 @@ begin
         leftStr := Copy(rspStrTmp, iPos + Length(macTmp) + 6 * 3 + 2, Length(rspStrTmp) - (iPos + Length(macTmp) + 6 * 3 + 1));
         iPos := iPos + Length(macTmp);
         rspMessage := preStr + '测量数据返回';
-        rspSBP := IntToStr((HexToAscII(Copy(rspStrTmp, iPos, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 2, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 4, 2))));
-        rspDBP := IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 6, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 8, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 10, 2))));
-        rspHR := IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 12, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 14, 2)))) + IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 16, 2))));
-        sql := Format('insert into T_M_Datas (MMac,MSBP,MDBP,MHR) values (%s,%s,%s,%s)', [QuotedStr(mac), QuotedStr(IntToStr(StrToInt(rspSBP))), QuotedStr(IntToStr(StrToInt(rspDBP))), QuotedStr(IntToStr(StrToInt(rspHR)))]);
+        rspSBP := IntToStr((HexToAscII(Copy(rspStrTmp, iPos, 2)))) +
+                  IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 2, 2)))) +
+                  IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 4, 2))));
+
+        rspDBP := IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 6, 2)))) +
+                  IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 8, 2)))) +
+                  IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 10, 2))));
+
+        rspHR := IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 12, 2)))) +
+                 IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 14, 2)))) +
+                 IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 16, 2))));
+
+        sql := Format('insert into T_M_Datas (MMac,MSBP,MDBP,MHR) values (%s,%s,%s,%s)',
+                      [QuotedStr(mac), QuotedStr(IntToStr(StrToInt(rspSBP))),
+                       QuotedStr(IntToStr(StrToInt(rspDBP))),
+                       QuotedStr(IntToStr(StrToInt(rspHR)))]);
         sqlList.Add(sql);
       end
       else if LowerCase(preStr) = '53' then
       begin
-        macModel.cStatus := OnWorking;
+        iPos := iPos + Length(macTmp);
+        leftStrTmp := IntToStr((HexToAscII(Copy(rspStrTmp, iPos, 2)))) +
+                      IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 2, 2)))) +
+                      IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 4, 2))));
+        if leftStrTmp = '000' then
+        begin
+          macModel.cStatus := UnConnect;
+        end
+        else
+          macModel.cStatus := OnWorking;
         macModel.cReqTime := 0;
         macModel.cDone := True;
         bpQueue.AddOrSetValue(macModel.MMac, macModel);
@@ -492,7 +510,7 @@ begin
           FbpRspBlock(macModel);
         end;
         leftStr := Copy(rspStrTmp, iPos + Length(macTmp) + 2 * 3 + 2, Length(rspStrTmp) - (iPos + Length(macTmp) + 2 * 3 + 1));
-        rspMessage := preStr + '设置间隔命令返回';
+        rspMessage := preStr + '设置间隔命令返回 = ' + leftStrTmp;
       end
       else
       begin
@@ -628,18 +646,20 @@ begin
   if fSocketQueue.ContainsKey(macModel.MGroup) then
   begin
     fSocketQueue.TryGetValue(macModel.MGroup, tmpSocket);
-    if Assigned(tmpSocket) and tmpSocket.Active and (macModel.cStatus = OnLine) then
+    if Assigned(tmpSocket) and tmpSocket.Active and (macModel.cStatus > UnConnect) then
     begin
       macModelTmp := getMacmodelbyMac(macModel.MMac);
       if Assigned(macModelTmp) then
       begin
-        macModel.MInterval := macModelTmp.MInterval;
-      end
-      else
-      begin
-        macModel.MInterval := '0';
+        if Length(macModelTmp.MInterval) = 0 then
+        begin
+          macModel.MInterval := '0';
+        end
+        else
+          macModel.MInterval := macModelTmp.MInterval;
+        bpQueue.AddOrSetValue(macModel.MMac,macModel);
+        bpSetTimeInterval(macModel);
       end;
-      bpSetTimeInterval(macModel);
     end
     else
     begin

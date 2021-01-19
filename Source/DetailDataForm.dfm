@@ -4,7 +4,7 @@ object TDetailDataForm: TTDetailDataForm
   BorderStyle = bsDialog
   Caption = #24403#26085#25968#25454#26597#30475
   ClientHeight = 531
-  ClientWidth = 487
+  ClientWidth = 528
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,13 +20,13 @@ object TDetailDataForm: TTDetailDataForm
   object Panel1: TPanel
     Left = 0
     Top = 481
-    Width = 487
+    Width = 528
     Height = 50
     Align = alBottom
     TabOrder = 0
-    ExplicitWidth = 475
+    ExplicitWidth = 487
     object refreshBtn: TButton
-      Left = 120
+      Left = 136
       Top = 16
       Width = 75
       Height = 25
@@ -35,7 +35,7 @@ object TDetailDataForm: TTDetailDataForm
       OnClick = refreshBtnClick
     end
     object closeBtn: TButton
-      Left = 264
+      Left = 280
       Top = 16
       Width = 75
       Height = 25
@@ -47,7 +47,7 @@ object TDetailDataForm: TTDetailDataForm
   object DBGrid1: TDBGrid
     Left = 0
     Top = 0
-    Width = 487
+    Width = 528
     Height = 481
     Align = alClient
     DataSource = DataSource1
@@ -91,7 +91,7 @@ object TDetailDataForm: TTDetailDataForm
         Expanded = False
         FieldName = 'MDate'
         Title.Caption = #26102#38388
-        Width = 140
+        Width = 160
         Visible = True
       end>
   end

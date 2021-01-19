@@ -17,6 +17,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure refreshMenuClick(Sender: TObject);
     procedure ScrollBox1MouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+    procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
     fViewsDic: TDictionary<string, TDetailInfoView>;
@@ -51,6 +52,17 @@ begin
   sForm := TTBPStatesForm.Create(Application);
   sForm.ShowModal;
   sForm.Free;
+end;
+
+procedure TTBPStatesForm.FormDestroy(Sender: TObject);
+begin
+
+  if Assigned(fViewsDic) then
+  begin
+    fViewsDic.Clear;
+    FreeAndNil(fViewsDic);
+  end;
+  inherited;
 end;
 
 procedure TTBPStatesForm.FormShow(Sender: TObject);
@@ -92,10 +104,13 @@ var
   macView: TDetailInfoView;
   mac: string;
 begin
-  fViewsDic.TryGetValue(rspModel.MMac, macView);
-  if Assigned(macView) then
+  if Assigned(fViewsDic) then
   begin
-    macView.reloadStatus(rspModel.cStatus);
+    fViewsDic.TryGetValue(rspModel.MMac, macView);
+    if Assigned(macView) then
+    begin
+      macView.reloadStatus(rspModel.cStatus);
+    end;
   end;
 end;
 

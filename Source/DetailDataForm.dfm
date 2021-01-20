@@ -24,7 +24,6 @@ object TDetailDataForm: TTDetailDataForm
     Height = 50
     Align = alBottom
     TabOrder = 0
-    ExplicitWidth = 487
     object refreshBtn: TButton
       Left = 136
       Top = 16
@@ -69,14 +68,14 @@ object TDetailDataForm: TTDetailDataForm
       item
         Expanded = False
         FieldName = 'MDBP'
-        Title.Caption = #25910#32553#21387
+        Title.Caption = #33298#24352#21387
         Width = 100
         Visible = True
       end
       item
         Expanded = False
         FieldName = 'MSBP'
-        Title.Caption = #33298#24352#21387
+        Title.Caption = #25910#32553#21387
         Width = 100
         Visible = True
       end

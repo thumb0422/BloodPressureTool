@@ -445,10 +445,10 @@ begin
         end;
         leftStr := Copy(rspStrTmp, iPos + Length(macTmp) + 2, Length(rspStrTmp) - (iPos + Length(macTmp) + 1));
       end
-      else if LowerCase(preStr) = '4D' then
+      else if LowerCase(preStr) = '4d' then
       begin
         rspMessage := preStr + '开始测量命令返回';
-        macModel.cStatus := OnLine;
+        macModel.cStatus := OnWorking;
         macModel.cReqTime := 0;
         macModel.cDone := True;
         bpQueue.AddOrSetValue(macModel.MMac, macModel);

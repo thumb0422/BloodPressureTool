@@ -483,7 +483,8 @@ begin
         rspHR := IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 12, 2)))) +
                  IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 14, 2)))) +
                  IntToStr((HexToAscII(Copy(rspStrTmp, iPos + 16, 2))));
-
+        sql := Format('Delete from T_M_Datas where 1=1 and MMac = %s',[QuotedStr(mac)]);
+        sqlList.Add(sql);
         sql := Format('insert into T_M_Datas (MMac,MSBP,MDBP,MHR) values (%s,%s,%s,%s)',
                       [QuotedStr(mac), QuotedStr(IntToStr(StrToInt(rspSBP))),
                        QuotedStr(IntToStr(StrToInt(rspDBP))),
